@@ -40,6 +40,5 @@ gulp.task('js', () => {
 
 gulp.task('default', () => {
     gulp.watch(cssPath, ['css']);
-    gulp.watch('./index.template.html', ['critical']);
     gulp.watch(jsPath, ['js']);
 });
