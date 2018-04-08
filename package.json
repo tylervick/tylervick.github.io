@@ -1,0 +1,20 @@
+{
+  "name": "tylervick.com",
+  "version": "1.0.0",
+  "description": "tylervick.com",
+  "main": "build.js",
+  "repository": "https://github.com/tylervick/tylervick.github.io.git",
+  "author": "Tyler Vick <tylerjvick@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "babel-core": "6.26.0",
+    "babel-preset-env": "1.6.1",
+    "gulp": "3.9.1",
+    "gulp-babel": "7.0.1",
+    "gulp-clean-css": "3.9.3",
+    "gulp-rename": "1.2.2",
+    "gulp-uglify": "3.0.0",
+    "uglify-js": "3.3.20"
+  }
+}
