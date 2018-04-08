@@ -10,6 +10,7 @@
   "dependencies": {
     "babel-core": "6.26.0",
     "babel-preset-env": "1.6.1",
+    "critical": "1.2.2",
     "gulp": "3.9.1",
     "gulp-babel": "7.0.1",
     "gulp-clean-css": "3.9.3",
