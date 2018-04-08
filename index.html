@@ -10,9 +10,18 @@
         <link rel="manifest" href="site.webmanifest">
         <link rel="apple-touch-icon" href="img/icon.png">
 
-        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-        <link rel="stylesheet" href="css/normalize.min.css">
-        <link rel="stylesheet" href="css/main.min.css">
+        <link rel="preload" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="preload" href="css/normalize.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="preload" href="css/main.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript>
+            <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+            <link rel="stylesheet" href="css/normalize.min.css">
+            <link rel="stylesheet" href="css/main.min.css">
+        </noscript>
+        <script>
+            /*! loadCSS rel=preload polyfill. [c]2017 Filament Group, Inc. MIT License */
+            !function(t){"use strict";t.loadCSS||(t.loadCSS=function(){});var e=loadCSS.relpreload={};e.support=function(){try{return t.document.createElement("link").relList.supports("preload")}catch(t){return!1}},e.bindMediaToggle=function(t,e){function a(){t.media=e}t.addEventListener?t.addEventListener("load",a):t.attachEvent&&t.attachEvent("onload",a),setTimeout(a,3e3)},e.poly=function(){if(!e.support()){for(var a=t.document.getElementsByTagName("link"),n=0;n<a.length;n++){var o=a[n];if("preload"===o.rel&&"style"===o.getAttribute("as")&&!o.getAttribute("data-loadcss")){var l=o.media||"all";e.bindMediaToggle(o,l),o.media="x",o.rel="stylesheet",o.setAttribute("data-loadcss",!0)}}var d=t.setInterval(e.poly,300);t.addEventListener?t.addEventListener("load",function(){e.poly(),t.clearInterval(d)}):t.attachEvent&&t.attachEvent("onload",function(){e.poly(),t.clearInterval(d)})}},e.poly(),"undefined"!=typeof exports?exports.loadCSS=loadCSS:t.loadCSS=loadCSS}("undefined"!=typeof global?global:this);
+        </script>
     </head>
     <body>
         <!--[if lte IE 9]>
