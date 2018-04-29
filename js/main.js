@@ -1,6 +1,7 @@
 // Stupid animated page title
 ((doc, win) => {
-    const title = doc.title;
+    const customTitle = 'tyler vick';
+    const title = customTitle || doc.title;
     doc.title = '>';
 
     let blinkingToggle, done = false;

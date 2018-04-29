@@ -127,6 +127,10 @@ a {
     height: 100%;
 }
 
+.uppercase {
+    text-transform: uppercase;
+}
+
 /* ==========================================================================
    MDL Overrides
    ========================================================================== */
@@ -136,8 +140,6 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .mdl-layout__container.has-scrolling-header .mdl-layout--fixed-header .mdl-layout__content {
-    overflow-y: visible;
-    overflow-x: visible;
     overflow: visible;
 }
 
