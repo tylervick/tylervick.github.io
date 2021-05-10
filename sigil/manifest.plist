@@ -11,7 +11,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL.ipa</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -47,7 +47,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-FEED0CA1-A52A-4C9A-B9F1-A1983F44B9E3.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-FEED0CA1-A52A-4C9A-B9F1-A1983F44B9E3.ipa</string>
 					<key>variantDescriptors</key>
 					<array/>
 					<key>variantIds</key>
@@ -67,7 +67,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-9835177E-44F7-498D-BBC7-32BB5B739873.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-9835177E-44F7-498D-BBC7-32BB5B739873.ipa</string>
 					<key>variantDescriptors</key>
 					<array/>
 					<key>variantIds</key>
@@ -105,7 +105,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-AE4BD328-1D09-466F-A311-7E1C214AA905.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-AE4BD328-1D09-466F-A311-7E1C214AA905.ipa</string>
 					<key>variantDescriptors</key>
 					<array/>
 					<key>variantIds</key>
@@ -124,7 +124,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-ED324878-7ED7-4A05-833C-274D6B13A03D.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-ED324878-7ED7-4A05-833C-274D6B13A03D.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -273,7 +273,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-CA7F35EB-4D5E-476A-80F4-0CCE92470D95.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-CA7F35EB-4D5E-476A-80F4-0CCE92470D95.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -414,7 +414,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-AF4A5F5F-3676-4205-A6B7-FCD5C4311B5C.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-AF4A5F5F-3676-4205-A6B7-FCD5C4311B5C.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -441,7 +441,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-FE7895F8-E1D1-4E8A-93E7-17E675E7820B.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-FE7895F8-E1D1-4E8A-93E7-17E675E7820B.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -887,7 +887,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-B1DC4FF6-3D07-4D4A-93EB-05CCA4243BEB.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-B1DC4FF6-3D07-4D4A-93EB-05CCA4243BEB.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -1075,7 +1075,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-78C8DEE1-3781-4B4E-8CFD-77C3C064B03A.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-78C8DEE1-3781-4B4E-8CFD-77C3C064B03A.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -1114,7 +1114,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-34A2ED99-B1C7-4D92-B6E8-A944A8A6894F.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-34A2ED99-B1C7-4D92-B6E8-A944A8A6894F.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -1633,7 +1633,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-4190BBE4-53DF-4BC3-BA21-8127069B7B00.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-4190BBE4-53DF-4BC3-BA21-8127069B7B00.ipa</string>
 					<key>variantDescriptors</key>
 					<array/>
 					<key>variantIds</key>
@@ -1656,7 +1656,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-44414BB8-E838-4A16-B734-DDDCDA340E73.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-44414BB8-E838-4A16-B734-DDDCDA340E73.ipa</string>
 					<key>variantDescriptors</key>
 					<array>
 						<dict>
@@ -1767,7 +1767,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-29EB9FC1-0346-47F0-AA94-D7456687314D.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-29EB9FC1-0346-47F0-AA94-D7456687314D.ipa</string>
 					<key>variantDescriptors</key>
 					<array/>
 					<key>variantIds</key>
@@ -1786,7 +1786,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://tylervick.com/sigil/Apps/sigil-E72F3B62-964D-4A7F-A55F-B3CAB7AFD914.ipa</string>
+					<string>https://tylervick.com/sigil/Apps/SIGIL-E72F3B62-964D-4A7F-A55F-B3CAB7AFD914.ipa</string>
 					<key>variantDescriptors</key>
 					<array/>
 					<key>variantIds</key>
