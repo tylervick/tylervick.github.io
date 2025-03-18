@@ -203,7 +203,7 @@ h2.employer-title {
 }
 
 .mdl-card-twds {
-    background: #141e92 url("/img/twds-logo.png") no-repeat 98% 50%;
+    background:hsl(235, 75.90%, 32.50%) url("/img/twds-logo.png") no-repeat 98% 50%;
     -webkit-background-size: auto 67%;
     background-size: auto 67%;
 }
