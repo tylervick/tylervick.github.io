@@ -202,6 +202,12 @@ h2.employer-title {
     /*text-shadow: 2px 2px 2px black;*/
 }
 
+.mdl-card-twds {
+    background: #141e92 url("/img/twds-logo.png") no-repeat 98% 50%;
+    -webkit-background-size: auto 67%;
+    background-size: auto 67%;
+}
+
 .mdl-card-sc {
     background: rgba(255, 252, 0, 1) url("/img/snapchat_logo.svg") no-repeat 95% 50%;
     -webkit-background-size: auto 90%;
