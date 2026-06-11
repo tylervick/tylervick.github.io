@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "tylervick.com",
     "main": "build.js",
-    "repository": "https://github.com/tylervick/tylervick.github.io.git",
+    "repository": "https://codeberg.org/tylervick/pages.git",
     "author": "Tyler Vick <tylerjvick@gmail.com>",
     "license": "MIT",
     "private": true,
