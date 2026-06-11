@@ -3,13 +3,10 @@
 
 # TEAM
 
-    <name> -- <role> -- <twitter>
-
-# THANKS
-
-    <name>
+    Tyler Vick -- Software Engineer
 
 # TECHNOLOGY COLOPHON
 
-    CSS3, HTML5
-    Apache Server Configs, jQuery, Modernizr, Normalize.css
+    Hand-written HTML & CSS, system fonts, no build step.
+    Set in SF Mono. Three lines of JavaScript for the clock.
+    Hosted on Codeberg Pages.

@@ -1,0 +1,172 @@
+/* tylervick.com — hand-written, no build step */
+
+:root {
+    --bg: #fbfbf9;
+    --ink: #1a1a18;
+    --muted: #8d8d86;
+    --accent: #ff4f00;
+    --hairline: #e4e4de;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0f0f0e;
+        --ink: #dcdcd4;
+        --muted: #73736b;
+        --accent: #ff5e2a;
+        --hairline: #262622;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: var(--bg);
+    color: var(--ink);
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="M4 1.5v15.5l4.3-3.8 2.5 5.9 2.7-1.1-2.5-5.8h5.8z" fill="%23ff4f00" stroke="white" stroke-width="1"/></svg>') 4 2, auto;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    -webkit-text-size-adjust: 100%;
+}
+
+::selection {
+    background: var(--accent);
+    color: #fff;
+}
+
+body {
+    margin: 0 auto;
+    max-width: 40rem;
+    padding: clamp(3rem, 14vh, 7rem) 1.5rem 4rem;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--muted);
+    text-underline-offset: 0.25em;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+a:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+}
+
+/* Entrance: one staggered reveal, then stillness */
+
+header, section, footer {
+    animation: rise 0.5s ease both;
+}
+
+section:nth-of-type(1) { animation-delay: 0.08s; }
+section:nth-of-type(2) { animation-delay: 0.16s; }
+footer { animation-delay: 0.24s; }
+
+@keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    header, section, footer { animation: none; }
+}
+
+/* Header */
+
+h1 {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.role {
+    color: var(--muted);
+}
+
+.intro {
+    color: var(--muted);
+    margin: 1.5rem 0 0;
+}
+
+.intro b {
+    color: var(--ink);
+    font-weight: 400;
+}
+
+/* Sections */
+
+h2 {
+    border-bottom: 1px solid var(--hairline);
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    margin: 3.5rem 0 0;
+    padding-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.timeline li {
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    padding: 0.65rem 0;
+}
+
+.idx {
+    color: var(--accent);
+    flex: 0 0 2.2rem;
+}
+
+.who {
+    flex: 1 1 14rem;
+}
+
+.detail {
+    color: var(--muted);
+}
+
+.dates {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* Footer */
+
+footer {
+    margin-top: 3.5rem;
+}
+
+.elsewhere {
+    margin: 0;
+}
+
+.elsewhere a + a {
+    margin-left: 1rem;
+}
+
+.fine {
+    color: var(--muted);
+    margin: 3rem 0 0;
+}
+
+.fine .clock {
+    color: var(--accent);
+}
