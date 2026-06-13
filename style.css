@@ -6,6 +6,18 @@
     --muted: #8d8d86;
     --accent: #ff4f00;
     --hairline: #e4e4de;
+
+    /* Brand colors — spine fills and index tints (light) */
+    --c-twds: hsl(235, 70%, 42%);
+    --c-snap: #fffc00;
+    --c-epic: #ba122b;
+    --c-weg: #ea8d1a;
+    --c-rit: #f76902;
+    --t-twds: hsl(235, 70%, 42%);
+    --t-snap: #9c8f00;
+    --t-epic: #ba122b;
+    --t-weg: #bf6e07;
+    --t-rit: #d35500;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +27,13 @@
         --muted: #73736b;
         --accent: #ff5e2a;
         --hairline: #262622;
+
+        --c-twds: hsl(235, 65%, 55%);
+        --t-twds: hsl(235, 70%, 70%);
+        --t-snap: #e8dc00;
+        --t-epic: #e8516b;
+        --t-weg: #eda23f;
+        --t-rit: #ff8b3d;
     }
 }
 
@@ -36,6 +55,29 @@ html {
     background: var(--accent);
     color: #fff;
 }
+
+/* Brand spine — five colors down the left edge of the viewport */
+
+.spine {
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 7px;
+    z-index: 1;
+}
+
+.spine i {
+    flex: 1;
+}
+
+.spine .s1 { background: var(--c-twds); }
+.spine .s2 { background: var(--c-snap); }
+.spine .s3 { background: var(--c-epic); }
+.spine .s4 { background: var(--c-weg); }
+.spine .s5 { background: var(--c-rit); }
 
 body {
     margin: 0 auto;
@@ -132,6 +174,12 @@ h2 {
     color: var(--accent);
     flex: 0 0 2.2rem;
 }
+
+.b-twds .idx { color: var(--t-twds); }
+.b-snap .idx { color: var(--t-snap); }
+.b-epic .idx { color: var(--t-epic); }
+.b-weg .idx { color: var(--t-weg); }
+.b-rit .idx { color: var(--t-rit); }
 
 .who {
     flex: 1 1 14rem;
