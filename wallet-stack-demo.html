@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wallet stack — demo</title>
+<style>
+  :root {
+    --accent: #ff4f00;
+    --ink: #161412;
+    --paper: #f4f1ea;
+    --peek: 60px;          /* how much of each parked pass stays visible —
+                              tall enough to show each pass's header strip,
+                              so the deck stays legible instead of merging */
+    --count: 5;            /* number of passes in the stack */
+    --top: 8vh;            /* where the front of the deck parks */
+    /* Pass height is CAPPED so the whole assembled deck fits one screen:
+       top offset + (count-1) peeks + this height must stay < 100vh, or the
+       sticky container runs out of room at the end and the upper passes
+       collapse onto each other. This is the real constraint — you can't
+       stack N fullscreen cards; reduce --count or --peek to make them taller. */
+    --pass-h: calc(92vh - var(--top) - (var(--count) - 1) * var(--peek));
+    --gutter: clamp(1rem, 5vw, 4rem);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 18vh var(--gutter) 8vh;
+  }
+
+  header h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    margin-top: 1.2rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #6b6358;
+    max-width: 32rem;
+  }
+  .kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.4rem;
+  }
+
+  /* --- the stack --- */
+  .stack {
+    /* the list itself doesn't scroll-snap; cards park via sticky */
+    padding-inline: var(--gutter);
+    /* EXACT trailing room so the last pass reaches its slot precisely at
+       max scroll, then stops. With pass-h capped at (92vh - top - peeks),
+       the deck spans 92vh, leaving 8vh of travel for the last pass — so
+       this must equal --top (8vh). More than this = the deck overshoots
+       and the upper passes drag/collapse in the final sliver; less = the
+       last pass never fully reaches its slot. */
+    padding-bottom: var(--top);
+  }
+
+  .pass {
+    position: sticky;
+    /* incremental top = the Wallet "peek". each card parks --peek lower
+       than the one before, so the tops fan into a visible deck. */
+    top: calc(var(--top) + var(--i) * var(--peek));
+    height: var(--pass-h);
+    max-width: 46rem;
+    margin: 0 auto;
+    margin-bottom: 8vh;
+    border-radius: 28px;
+    /* smaller top padding so the header sits inside the --peek strip and
+       stays visible when this pass is parked behind another */
+    padding: 1.05rem clamp(1.4rem, 4vw, 2.6rem) clamp(1.4rem, 4vw, 2.6rem);
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.12) inset,
+      0 24px 50px -24px rgba(0,0,0,0.45);
+    /* scroll-driven depth cue: parked cards dim as they recede — no scale,
+       so every pass stays the same width. progressive enhancement: no-op
+       where scroll-driven animations are unsupported. */
+    animation: park linear both;
+    animation-timeline: view();
+    animation-range: exit -10% exit 90%;
+  }
+
+  @keyframes park {
+    to { filter: brightness(0.78); }
+  }
+
+  /* the last pass is the resting state: no trailing margin so it doesn't
+     un-pin and scroll up over the deck, and no park animation so it stays
+     full-size and bright as the "front" card. */
+  .pass:last-child {
+    margin-bottom: 0;
+    animation: none;
+  }
+
+  /* pass faces — flat color fields, no gloss, in your palette */
+  .pass:nth-child(1) { --i: 0; background: var(--accent); }
+  .pass:nth-child(2) { --i: 1; background: #1f1b17; }
+  .pass:nth-child(3) { --i: 2; background: #3a5a40; }
+  .pass:nth-child(4) { --i: 3; background: #2b2a4a; }
+  .pass:nth-child(5) { --i: 4; background: #7a3b2e; }
+
+  .pass-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .pass-body { margin-top: auto; }
+  .pass-body h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .pass-body p {
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    max-width: 30rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .pass { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <p class="kicker">stacked passes · prototype</p>
+    <h1>Scroll, and the cards fan into a deck.</h1>
+    <p>Each pass parks <code>46px</code> below the previous one (the “peek”), near-fullscreen, scaling and dimming slightly as it settles behind the next. Pure CSS — <code>position: sticky</code> for the stack, a scroll-driven <code>view()</code> timeline for the depth. No JS, no build.</p>
+  </header>
+
+  <main class="stack">
+    <article class="pass">
+      <div class="pass-head"><span>01 — index</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>The peek is the whole trick.</h2>
+        <p>Incremental <code>top</code> values keep every card's top edge visible as the stack builds, instead of one card fully replacing the last.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>02 — writing</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Near-fullscreen, not column-width.</h2>
+        <p>Cards run to ~78vh and a generous max-width so they read as passes, not content boxes parked in a feed.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>03 — work</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Depth without gloss.</h2>
+        <p>A subtle scale + brightness drop sells “behind.” Flat color fields keep it quiet rather than skeuomorphic.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>04 — notes</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Graceful everywhere.</h2>
+        <p>Browsers without scroll-driven animations just skip the scale; the sticky stacking still works. Reduced-motion turns it all off.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>05 — contact</span><span>●</span></div>
+      <div class="pass-body">
+        <h2>Tune the feel with two numbers.</h2>
+        <p>Change <code>--peek</code> for how much shows through, and <code>--pass-h</code> for how full-screen it gets. Everything else follows.</p>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
