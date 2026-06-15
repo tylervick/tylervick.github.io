@@ -14,6 +14,9 @@
                               so the deck stays legible instead of merging */
     --count: 5;            /* number of passes in the stack */
     --top: 8vh;            /* where the front of the deck parks */
+    --ela-front: 0.35;     /* overscroll: how much the FRONT pass travels vs
+                              the back (0 = anchored/most elastic, 1 = rigid).
+                              lower = peeks stretch open more dramatically */
     /* Pass height is CAPPED so the whole assembled deck fits one screen:
        top offset + (count-1) peeks + this height must stay < 100vh, or the
        sticky container runs out of room at the end and the upper passes
@@ -28,6 +31,9 @@
   * { box-sizing: border-box; margin: 0; }
 
   html { scroll-behavior: smooth; }
+  /* turn off the browser's native elastic overscroll so passes 4–5 don't
+     bounce on their own — the script below drives a unified bounce instead */
+  html, body { overscroll-behavior-y: none; }
 
   body {
     background: var(--paper);
@@ -103,7 +109,20 @@
     animation: park linear both;
     animation-timeline: view();
     animation-range: exit -10% exit 90%;
+    /* overscroll bounce: the script sets --bounce on the deck; each pass
+       reads it here. The displacement is SCALED PER PASS so the deck
+       stretches elastically instead of sliding as a rigid block: --reach is
+       1 for the back pass and 0 for the front, so back passes travel the
+       full --bounce while the front (at the scroll edge) travels only
+       --ela-front of it. The peeks open like Wallet's accordion, then snap
+       back. transform on the pass ITSELF (not an ancestor) keeps sticky intact. */
+    --reach: calc((var(--count) - 1 - var(--i)) / (var(--count) - 1));
+    transform: translateY(calc(
+      var(--bounce, 0px) * (var(--ela-front) + (1 - var(--ela-front)) * var(--reach))));
   }
+
+  /* no CSS transition on the bounce: the script's spring loop updates
+     --bounce every frame, so the transform must follow it instantly */
 
   @keyframes park {
     to { filter: brightness(0.78); }
@@ -159,7 +178,7 @@
   <header>
     <p class="kicker">stacked passes · prototype</p>
     <h1>Scroll, and the cards fan into a deck.</h1>
-    <p>Each pass parks <code>46px</code> below the previous one (the “peek”), near-fullscreen, scaling and dimming slightly as it settles behind the next. Pure CSS — <code>position: sticky</code> for the stack, a scroll-driven <code>view()</code> timeline for the depth. No JS, no build.</p>
+    <p>Each pass parks <code>46px</code> below the previous one (the “peek”), near-fullscreen, dimming slightly as it settles behind the next. The stack is pure CSS — <code>position: sticky</code> plus a scroll-driven <code>view()</code> timeline. A small script adds the one thing CSS can't: a unified overscroll bounce, where the whole deck stretches together at the bottom like Wallet's passes.</p>
   </header>
 
   <main class="stack">
@@ -203,5 +222,83 @@
       </div>
     </article>
   </main>
+
+  <script>
+  // Elastic overscroll, done with real spring physics. Native elastic scroll
+  // only moves the passes anchored to the bottom of the scroller; the rest
+  // are sticky-pinned and ignore it. So we kill the native bounce (CSS:
+  // overscroll-behavior-y: none) and run our own spring-damper that drives a
+  // --bounce offset, which each pass scales by its --reach. Input injects
+  // VELOCITY; a spring pulls the deck back to rest every frame — so it tracks
+  // your push and recoils with momentum and a little overshoot, instead of
+  // sticking at a fixed offset and snapping. We transform each pass (not the
+  // .stack) — a transform on a sticky element's ancestor breaks its pinning.
+  (() => {
+    const stack = document.querySelector('.stack');
+    if (!stack || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const GAIN = 1.0;    // how much raw input feeds the push accumulator
+    const SCALE = 300;   // resistance: bigger = stiffer pull (need more push)
+    const CAP = 135;     // max travel of the back pass (px)
+    const DECAY = 13;    // how fast the push fades once input stops (per sec) —
+                         // faster fade hands the return over to the spring below
+    const K = 260;       // recoil spring stiffness
+    const C = 21;        // recoil damping — under critical (~2·√K ≈ 32), so the
+                         // deck overshoots its rest a hair on the way back = bounce
+
+    let push = 0;        // accumulated overscroll input (decays while idle)
+    let offset = 0;      // back-pass displacement (px, negative = pulled up)
+    let vel = 0;         // px/s
+    let holding = false; // true while a finger is actively dragging
+    let raf = 0, last = 0;
+
+    const atBottom = () =>
+      Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight;
+    const apply = () => stack.style.setProperty('--bounce', offset.toFixed(2) + 'px');
+
+    const tick = (t) => {
+      const dt = Math.min((t - (last || t)) / 1000, 0.032);  // clamp big gaps
+      last = t;
+      if (!holding) push *= Math.exp(-DECAY * dt);           // input fades → deck returns
+      // resistance curve: push maps to a target displacement, asymptotic to CAP
+      const target = -CAP * (1 - Math.exp(-push / SCALE));
+      // critically-damped-ish spring chases the target (lag = momentum, slight overshoot)
+      vel += (-K * (offset - target) - C * vel) * dt;
+      offset += vel * dt;
+      apply();
+      if (!holding && push < 0.4 && Math.abs(offset) < 0.15 && Math.abs(vel) < 4) {
+        push = 0; offset = 0; vel = 0; apply(); raf = 0; last = 0; return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } };
+
+    // wheel / trackpad: each notch past the bottom adds to the push; it decays
+    // on its own, so the deck tracks the scroll then eases back — no stick.
+    window.addEventListener('wheel', (e) => {
+      if (atBottom() && e.deltaY > 0) {
+        e.preventDefault();
+        push = Math.min(push + e.deltaY * GAIN, SCALE * 5);
+        start();
+      }
+    }, { passive: false });
+
+    // touch: 1:1 finger tracking (no decay while held), recoil on lift
+    let py = null;
+    window.addEventListener('touchstart', (e) => { py = e.touches[0].clientY; holding = true; }, { passive: true });
+    window.addEventListener('touchmove', (e) => {
+      if (py === null) return;
+      const y = e.touches[0].clientY;
+      const d = py - y;            // dragging content upward = positive
+      py = y;
+      if (atBottom() && (d > 0 || push > 0)) {
+        e.preventDefault();
+        push = Math.min(Math.max(0, push + d * GAIN), SCALE * 5);
+        start();
+      }
+    }, { passive: false });
+    window.addEventListener('touchend', () => { py = null; holding = false; start(); }, { passive: true });
+  })();
+  </script>
 </body>
 </html>
