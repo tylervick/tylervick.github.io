@@ -90,6 +90,7 @@
       0 1px 0 rgba(255,255,255,0.12) inset,
       0 24px 50px -24px rgba(0,0,0,0.45);
     will-change: transform;
+    backface-visibility: hidden;   /* keep each pass on its own stable GPU layer */
   }
   .pass:last-child { margin-bottom: 0; }
 
@@ -104,8 +105,8 @@
       animation-timeline: scroll(root);
     }
     @keyframes pin {
-      from { transform: translateY(0); }
-      to   { transform: translateY(var(--pin, 0px)); }
+      from { transform: translate3d(0, 0, 0); }
+      to   { transform: translate3d(0, var(--pin, 0px), 0); }
     }
   }
 
@@ -209,8 +210,14 @@
     const absTop = (el) => { let y = 0; for (; el; el = el.offsetParent) y += el.offsetTop; return y; };
 
     function setup() {
-      const maxScroll = root.scrollHeight - window.innerHeight;
-      if (maxScroll <= 0) return;
+      // FAR is a fixed range end, derived from layout (scrollHeight is
+      // vh-stable) and always >= any real maxScroll. Ending the range here
+      // instead of at `100%` (the LIVE maxScroll) makes the pin rate exactly
+      // 1px transform per 1px scroll, forever. With `100%`, the mobile URL bar
+      // changes maxScroll, skewing the rate, so already-pinned cards creep as
+      // you scroll — the stutter. A fixed end nails them in place.
+      const FAR = root.scrollHeight;
+      if (FAR <= window.innerHeight) return;
 
       // resolve --top and --peek to pixels for this viewport
       const probe = document.createElement('div');
@@ -223,17 +230,24 @@
       passes.forEach((card, i) => {
         const slot = topPx + i * peekPx;          // where pass i rests (from viewport top)
         const pinAt = Math.max(0, absTop(card) - slot);   // scroll offset where it pins
-        // translateY ramps 0 → (maxScroll - pinAt) over [pinAt, maxScroll],
-        // i.e. exactly 1:1 with scroll past the pin point → holds it in its slot
-        card.style.setProperty('--pin', (maxScroll - pinAt) + 'px');
-        card.style.animationRange = pinAt + 'px 100%';
+        // translateY ramps 0 → (FAR - pinAt) over [pinAt, FAR] → exactly 1:1
+        // with scroll past the pin point, so the pass holds dead-still in its
+        // slot for all real scroll (maxScroll < FAR).
+        card.style.setProperty('--pin', (FAR - pinAt) + 'px');
+        card.style.animationRange = pinAt + 'px ' + FAR + 'px';
       });
     }
 
     setup();
     addEventListener('load', setup);            // re-measure after fonts/layout settle
-    let raf = 0;
-    addEventListener('resize', () => {          // viewport changes (incl. mobile URL bar)
+    let raf = 0, lastW = innerWidth;
+    addEventListener('resize', () => {
+      // On mobile the URL bar showing/hiding fires resize with only a HEIGHT
+      // change. Recomputing then re-seats every pass mid-scroll — that's the
+      // "odd slide/jump". Pin points are vh-based (height-stable), so only
+      // recompute on a real WIDTH change (rotation, window resize).
+      if (innerWidth === lastW) return;
+      lastW = innerWidth;
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(setup);
     });
