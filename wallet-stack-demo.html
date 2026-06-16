@@ -45,14 +45,12 @@
   /* compact intro above the deck. Two jobs: (1) it's the lead-in copy, and
      (2) its height keeps pass 01's natural position below the 8vh stick line,
      so pass 01 ISN'T force-pinned at scrollY=0 — which would eat the margin
-     and make passes 1 & 2 touch at the top. It also carries the --bounce
-     transform so it rides the top overscroll together with the deck (it's not
-     sticky, so transforming it is safe). */
+     and make passes 1 & 2 touch at the top. It stays put during the bounce
+     (no --bounce transform): only the passes ride the overscroll. */
   .intro {
     max-width: 42rem;
     margin: 0 auto;
     padding: 12vh var(--gutter) 7vh;
-    transform: translateY(var(--bounce, 0px));
   }
   .intro h1 {
     font-family: var(--serif);
