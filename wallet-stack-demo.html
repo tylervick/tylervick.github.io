@@ -42,21 +42,27 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  header {
+  /* compact intro above the deck. Two jobs: (1) it's the lead-in copy, and
+     (2) its height keeps pass 01's natural position below the 8vh stick line,
+     so pass 01 ISN'T force-pinned at scrollY=0 — which would eat the margin
+     and make passes 1 & 2 touch at the top. It also carries the --bounce
+     transform so it rides the top overscroll together with the deck (it's not
+     sticky, so transforming it is safe). */
+  .intro {
     max-width: 42rem;
     margin: 0 auto;
-    padding: 18vh var(--gutter) 8vh;
+    padding: 12vh var(--gutter) 7vh;
+    transform: translateY(var(--bounce, 0px));
   }
-
-  header h1 {
+  .intro h1 {
     font-family: var(--serif);
     font-weight: 500;
-    font-size: clamp(2rem, 6vw, 3.4rem);
-    line-height: 1.05;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    line-height: 1.06;
     letter-spacing: -0.01em;
   }
-  header p {
-    margin-top: 1.2rem;
+  .intro p {
+    margin-top: 1rem;
     font-size: 0.82rem;
     line-height: 1.6;
     color: #6b6358;
@@ -67,7 +73,7 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 1.4rem;
+    margin-bottom: 1.2rem;
   }
 
   /* --- the stack --- */
@@ -175,10 +181,10 @@
 </style>
 </head>
 <body>
-  <header>
+  <header class="intro">
     <p class="kicker">stacked passes · prototype</p>
-    <h1>Scroll, and the cards fan into a deck.</h1>
-    <p>Each pass parks <code>46px</code> below the previous one (the “peek”), near-fullscreen, dimming slightly as it settles behind the next. The stack is pure CSS — <code>position: sticky</code> plus a scroll-driven <code>view()</code> timeline. A small script adds the one thing CSS can't: a unified overscroll bounce, where the whole deck stretches together at the bottom like Wallet's passes.</p>
+    <h1>A deck that bounces at both ends.</h1>
+    <p>Scroll and the passes deal into a stack; pull past either edge and the whole deck stretches elastically, the way Apple Wallet's passes do.</p>
   </header>
 
   <main class="stack">
@@ -224,61 +230,69 @@
   </main>
 
   <script>
-  // Elastic overscroll, done with real spring physics. Native elastic scroll
-  // only moves the passes anchored to the bottom of the scroller; the rest
-  // are sticky-pinned and ignore it. So we kill the native bounce (CSS:
-  // overscroll-behavior-y: none) and run our own spring-damper that drives a
-  // --bounce offset, which each pass scales by its --reach. Input injects
-  // VELOCITY; a spring pulls the deck back to rest every frame — so it tracks
-  // your push and recoils with momentum and a little overshoot, instead of
-  // sticking at a fixed offset and snapping. We transform each pass (not the
-  // .stack) — a transform on a sticky element's ancestor breaks its pinning.
+  // Elastic overscroll at BOTH ends. The native bounce only moves passes
+  // anchored to the scroller edge; the sticky-pinned ones ignore it. So we
+  // kill the native bounce (CSS: overscroll-behavior-y: none) and run our own
+  // spring-damper that drives a signed --bounce, which each pass scales by its
+  // --reach. Overscrolling down at the BOTTOM pulls the deck up (negative);
+  // overscrolling up at the TOP pulls it down (positive). Input feeds a `push`
+  // accumulator that decays on its own, and a spring chases the resulting
+  // target every frame — so the deck tracks your scroll then eases back with a
+  // hair of overshoot, no stick/snap. We transform each pass (not the .stack):
+  // a transform on a sticky element's ancestor would break its pinning.
   (() => {
     const stack = document.querySelector('.stack');
     if (!stack || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const GAIN = 1.0;    // how much raw input feeds the push accumulator
     const SCALE = 300;   // resistance: bigger = stiffer pull (need more push)
-    const CAP = 135;     // max travel of the back pass (px)
+    const CAP = 135;     // max travel of the leading pass (px)
     const DECAY = 13;    // how fast the push fades once input stops (per sec) —
                          // faster fade hands the return over to the spring below
     const K = 260;       // recoil spring stiffness
     const C = 21;        // recoil damping — under critical (~2·√K ≈ 32), so the
                          // deck overshoots its rest a hair on the way back = bounce
+    const LIMIT = SCALE * 5;  // clamp on accumulated push (both directions)
 
-    let push = 0;        // accumulated overscroll input (decays while idle)
-    let offset = 0;      // back-pass displacement (px, negative = pulled up)
+    let push = 0;        // signed overscroll input: + at top, − at bottom
+    let offset = 0;      // leading-pass displacement (px); sign follows push
     let vel = 0;         // px/s
     let holding = false; // true while a finger is actively dragging
     let raf = 0, last = 0;
 
     const atBottom = () =>
       Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight;
-    const apply = () => stack.style.setProperty('--bounce', offset.toFixed(2) + 'px');
+    const atTop = () => window.scrollY <= 0;
+    // set --bounce on the ROOT, not .stack: the .intro is a sibling of .stack,
+    // so a variable on .stack wouldn't inherit to it. on <html> both the
+    // passes and the intro pick it up.
+    const apply = () => document.documentElement.style.setProperty('--bounce', offset.toFixed(2) + 'px');
+    const clamp = (v) => Math.max(-LIMIT, Math.min(LIMIT, v));
 
     const tick = (t) => {
       const dt = Math.min((t - (last || t)) / 1000, 0.032);  // clamp big gaps
       last = t;
       if (!holding) push *= Math.exp(-DECAY * dt);           // input fades → deck returns
-      // resistance curve: push maps to a target displacement, asymptotic to CAP
-      const target = -CAP * (1 - Math.exp(-push / SCALE));
+      // resistance curve: |push| maps to a displacement asymptotic to CAP,
+      // sign-preserving so it works for both edges (− up at bottom, + down at top)
+      const target = -CAP * Math.sign(push) * (1 - Math.exp(-Math.abs(push) / SCALE));
       // critically-damped-ish spring chases the target (lag = momentum, slight overshoot)
       vel += (-K * (offset - target) - C * vel) * dt;
       offset += vel * dt;
       apply();
-      if (!holding && push < 0.4 && Math.abs(offset) < 0.15 && Math.abs(vel) < 4) {
+      if (!holding && Math.abs(push) < 0.4 && Math.abs(offset) < 0.15 && Math.abs(vel) < 4) {
         push = 0; offset = 0; vel = 0; apply(); raf = 0; last = 0; return;
       }
       raf = requestAnimationFrame(tick);
     };
     const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } };
 
-    // wheel / trackpad: each notch past the bottom adds to the push; it decays
-    // on its own, so the deck tracks the scroll then eases back — no stick.
+    // wheel / trackpad: pushing past either edge adds to the push (down at the
+    // bottom → +deltaY, up at the top → −deltaY); it decays on its own.
     window.addEventListener('wheel', (e) => {
-      if (atBottom() && e.deltaY > 0) {
+      if ((atBottom() && e.deltaY > 0) || (atTop() && e.deltaY < 0)) {
         e.preventDefault();
-        push = Math.min(push + e.deltaY * GAIN, SCALE * 5);
+        push = clamp(push + e.deltaY * GAIN);
         start();
       }
     }, { passive: false });
@@ -289,11 +303,13 @@
     window.addEventListener('touchmove', (e) => {
       if (py === null) return;
       const y = e.touches[0].clientY;
-      const d = py - y;            // dragging content upward = positive
+      const d = py - y;            // dragging content up = +, down = −
       py = y;
-      if (atBottom() && (d > 0 || push > 0)) {
+      const pullBottom = atBottom() && (d > 0 || push > 0);
+      const pullTop    = atTop()    && (d < 0 || push < 0);
+      if (pullBottom || pullTop) {
         e.preventDefault();
-        push = Math.min(Math.max(0, push + d * GAIN), SCALE * 5);
+        push = clamp(push + d * GAIN);
         start();
       }
     }, { passive: false });
