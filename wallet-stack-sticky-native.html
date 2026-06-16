@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wallet stack — sticky + native overscroll</title>
+<style>
+  :root {
+    --accent: #ff4f00;
+    --ink: #161412;
+    --paper: #f4f1ea;
+    --peek: 60px;
+    --count: 5;
+    --top: 8vh;
+    --pass-h: calc(92vh - var(--top) - (var(--count) - 1) * var(--peek));
+    --gutter: clamp(1rem, 5vw, 4rem);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  html { scroll-behavior: smooth; }
+  /* NO overscroll-behavior override and NO bounce script: the cascade is
+     position:sticky (the browser pins it perfectly, zero jitter) and the
+     bounce is the OS's own rubber-band. Trade-off: at the bottom the OS only
+     rubber-bands passes that aren't sticky-pinned (the front one), while the
+     stacked passes hold. At the top, none are pinned yet, so all of them ride
+     the bounce. */
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* compact intro. Its height also keeps pass 01 below the 8vh stick line at
+     scrollY=0, so passes 1 & 2 don't touch at the top. */
+  .intro {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 12vh var(--gutter) 7vh;
+  }
+  .intro h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+  .intro p {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #6b6358;
+    max-width: 32rem;
+  }
+  .kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  /* --- the stack --- */
+  .stack {
+    padding-inline: var(--gutter);
+    /* With bottom-aligned heights the deck already reaches the viewport bottom
+       at assembly, so NO trailing padding — any extra scroll past assembly
+       would lift the sticky container's content edge above the passes' shared
+       bottom and drag the whole deck up. Zero padding makes max scroll land
+       exactly on the assembled deck. */
+    padding-bottom: 0;
+  }
+
+  .pass {
+    position: sticky;
+    /* incremental top = the Wallet "peek" — each pass parks --peek lower than
+       the one before. Sticky pinning is done by the browser, so it never
+       jitters the way a scroll-driven counter-transform does. */
+    top: calc(var(--top) + var(--i) * var(--peek));
+    /* BOTTOM-ALIGNED heights: every pass's bottom sits at the viewport bottom
+       (100dvh) when pinned, so O_i + height = 100dvh for ALL passes. That
+       means they all hit the native-overscroll "release" threshold at the
+       same instant — the whole deck rubber-bands together as one rigid unit,
+       instead of the bottom 1–2 releasing as a chunk over the pinned rest.
+       Only the front pass's bottom is visible, so the taller back passes are
+       invisible — the assembled deck looks identical. dvh tracks the real
+       viewport so the shared bottom holds through the mobile URL bar. */
+    height: calc(100dvh - var(--top) - var(--i) * var(--peek));
+    max-width: 46rem;
+    margin: 0 auto;
+    /* NO bottom margin: the sticky clamp counts the margin box, so a margin
+       would add to each pass's effective bottom and break the shared-bottom
+       alignment (dragging the upper passes up). The tall bottom-aligned
+       heights already supply plenty of scroll travel per pass. */
+    border-radius: 28px;
+    padding: 1.05rem clamp(1.4rem, 4vw, 2.6rem) clamp(1.4rem, 4vw, 2.6rem);
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.12) inset,
+      0 24px 50px -24px rgba(0,0,0,0.45);
+    /* depth cue: parked passes dim as they recede (filter only — no transform,
+       so no positional jitter). progressive enhancement. */
+    animation: park linear both;
+    animation-timeline: view();
+    animation-range: exit -10% exit 90%;
+  }
+
+  @keyframes park {
+    to { filter: brightness(0.78); }
+  }
+
+  .pass:last-child {
+    margin-bottom: 0;
+    animation: none;
+  }
+
+  .pass:nth-child(1) { --i: 0; background: var(--accent); }
+  .pass:nth-child(2) { --i: 1; background: #1f1b17; }
+  .pass:nth-child(3) { --i: 2; background: #3a5a40; }
+  .pass:nth-child(4) { --i: 3; background: #2b2a4a; }
+  .pass:nth-child(5) { --i: 4; background: #7a3b2e; }
+
+  .pass-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .pass-body { margin-top: auto; }
+  .pass-body h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .pass-body p {
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    max-width: 30rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .pass { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <header class="intro">
+    <p class="kicker">stacked passes · sticky + native</p>
+    <h1>Sticky cascade, native bounce.</h1>
+    <p>The deck is built with <code>position: sticky</code> — the browser pins each pass perfectly, so there's nothing to jitter. The overscroll is the OS rubber-band, untouched. The catch: at the bottom only the front pass rides it (the stacked ones are pinned); at the top, all of them do.</p>
+  </header>
+
+  <main class="stack">
+    <article class="pass">
+      <div class="pass-head"><span>01 — index</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Pinning the browser's way.</h2>
+        <p>Each pass scrolls up showing its content, then sticks at its slot while the next rises — and because it's real sticky, it's rock-still.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>02 — writing</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>No counteracting transform.</h2>
+        <p>Nothing is fighting the scroll frame-by-frame, so the stacked passes can't flash between two positions the way the transform version did.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>03 — work</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>The bounce is the OS's.</h2>
+        <p>No script, no <code>overscroll-behavior</code> override — pulling past an edge is the native rubber-band, exactly as the platform draws it.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>04 — notes</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>The asymmetry.</h2>
+        <p>At the bottom the OS only bounces passes that aren't pinned — so the front pass rubber-bands and the stack holds. The question is whether that reads as natural or wrong.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>05 — contact</span><span>●</span></div>
+      <div class="pass-body">
+        <h2>Feel it against the others.</h2>
+        <p>Same cascade as before, zero jitter. Compare the bottom bounce here (front pass only) with the transform version (all passes, but flashing).</p>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
