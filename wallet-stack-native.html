@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wallet stack — native overscroll variant</title>
+<style>
+  :root {
+    --accent: #ff4f00;
+    --ink: #161412;
+    --paper: #f4f1ea;
+    --peek: 60px;
+    --count: 5;
+    --top: 8vh;
+    --pass-h: calc(92vh - var(--top) - (var(--count) - 1) * var(--peek));
+    --gutter: clamp(1rem, 5vw, 4rem);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  html { scroll-behavior: smooth; }
+  /* NOTE: no overscroll-behavior override. We WANT the OS rubber-band — and
+     because the passes are in normal flow (their "pinning" is a transform,
+     not position:sticky), the native overscroll carries the whole deck at
+     both ends with the OS's own physics. No JS touches the bounce. */
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .intro {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 12vh var(--gutter) 7vh;
+  }
+  .intro h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+  .intro p {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #6b6358;
+    max-width: 32rem;
+  }
+  .kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  /* --- the stack ---
+     Same spaced, full-height layout as the sticky demo: each pass is its own
+     screenful, so as you scroll it rises into view and you read its content,
+     then it "pins" near the top while the next rises behind it — building the
+     deck. The difference: pinning is a scroll-driven TRANSFORM (set up by the
+     small script below), not position:sticky. Transforms stay in flow, so the
+     native overscroll bounces the whole deck; sticky would not. */
+  .stack {
+    position: relative;
+    padding-inline: var(--gutter);
+    padding-bottom: var(--top);   /* last pass lands in its slot at max scroll */
+  }
+
+  .pass {
+    position: relative;
+    width: 100%;
+    max-width: 46rem;
+    margin-inline: auto;
+    height: var(--pass-h);
+    margin-bottom: 8vh;           /* flow spacing = scroll travel per pass */
+    border-radius: 28px;
+    padding: 1.05rem clamp(1.4rem, 4vw, 2.6rem) clamp(1.4rem, 4vw, 2.6rem);
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.12) inset,
+      0 24px 50px -24px rgba(0,0,0,0.45);
+    will-change: transform;
+  }
+  .pass:last-child { margin-bottom: 0; }
+
+  /* The pin: translateY ramps 1:1 with scroll over [pin-point, max], which
+     holds the pass at its slot exactly like sticky. --pin (the final offset)
+     and animation-range (the pin-point) are computed per pass by the script,
+     because they depend on measured layout + scroll height. Falls back to a
+     plain spaced list if scroll-driven animations aren't supported. */
+  @supports (animation-timeline: scroll()) {
+    .pass {
+      animation: pin linear both;
+      animation-timeline: scroll(root);
+    }
+    @keyframes pin {
+      from { transform: translateY(0); }
+      to   { transform: translateY(var(--pin, 0px)); }
+    }
+  }
+
+  .pass:nth-child(1) { --i: 0; background: var(--accent); }
+  .pass:nth-child(2) { --i: 1; background: #1f1b17; }
+  .pass:nth-child(3) { --i: 2; background: #3a5a40; }
+  .pass:nth-child(4) { --i: 3; background: #2b2a4a; }
+  .pass:nth-child(5) { --i: 4; background: #7a3b2e; }
+
+  .pass-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .pass-body { margin-top: auto; }
+  .pass-body h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .pass-body p {
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    max-width: 30rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .pass { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <header class="intro">
+    <p class="kicker">stacked passes · native overscroll</p>
+    <h1>Same cascade, the OS does the bounce.</h1>
+    <p>The passes build the deck exactly like the sticky demo — each rises, shows its content, then pins as the next comes up. But the pin is a transform, not <code>position: sticky</code>, so everything stays in flow and the overscroll is the browser's own rubber-band — most faithful on a phone.</p>
+  </header>
+
+  <main class="stack">
+    <article class="pass">
+      <div class="pass-head"><span>01 — index</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>You read each card on the way up.</h2>
+        <p>Every pass is a full screenful and scrolls into view before it pins — so its content is visible, not just a peek.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>02 — writing</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Pinning without sticky.</h2>
+        <p>A scroll-driven transform ramps 1:1 with scroll to hold each pass in its slot — visually identical to sticky, but it stays in normal flow.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>03 — work</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>The bounce is the OS's.</h2>
+        <p>Because nothing is pinned to the viewport, pulling past either edge uses the native rubber-band — no spring to tune, no touch handler to fight.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>04 — notes</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Two honest trade-offs.</h2>
+        <p>The native bounce moves everything rigidly (no per-pass elastic spread), and the intro rides along. A little JS measures the pin points, but never touches the bounce.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>05 — contact</span><span>●</span></div>
+      <div class="pass-body">
+        <h2>Feel them side by side.</h2>
+        <p>Open this and the sticky+JS version on your phone. Same cascade, same resting deck — this one should bounce like the OS.</p>
+      </div>
+    </article>
+  </main>
+
+  <script>
+  // Set up the per-pass "pin" for the scroll-driven cascade. This computes
+  // static values (where each pass pins, and how far it must translate to
+  // stay there) from measured layout — it does NOT run on scroll, and it does
+  // NOT touch the overscroll, which stays 100% native.
+  (() => {
+    const root = document.documentElement;
+    const passes = [...document.querySelectorAll('.pass')];
+    if (!passes.length || !CSS.supports('animation-timeline', 'scroll()')) return;
+
+    // document-absolute top of an element (layout position; ignores transforms)
+    const absTop = (el) => { let y = 0; for (; el; el = el.offsetParent) y += el.offsetTop; return y; };
+
+    function setup() {
+      const maxScroll = root.scrollHeight - window.innerHeight;
+      if (maxScroll <= 0) return;
+
+      // resolve --top and --peek to pixels for this viewport
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;visibility:hidden;width:0';
+      document.body.appendChild(probe);
+      probe.style.height = 'var(--top)';  const topPx  = probe.offsetHeight;
+      probe.style.height = 'var(--peek)'; const peekPx = probe.offsetHeight;
+      probe.remove();
+
+      passes.forEach((card, i) => {
+        const slot = topPx + i * peekPx;          // where pass i rests (from viewport top)
+        const pinAt = Math.max(0, absTop(card) - slot);   // scroll offset where it pins
+        // translateY ramps 0 → (maxScroll - pinAt) over [pinAt, maxScroll],
+        // i.e. exactly 1:1 with scroll past the pin point → holds it in its slot
+        card.style.setProperty('--pin', (maxScroll - pinAt) + 'px');
+        card.style.animationRange = pinAt + 'px 100%';
+      });
+    }
+
+    setup();
+    addEventListener('load', setup);            // re-measure after fonts/layout settle
+    let raf = 0;
+    addEventListener('resize', () => {          // viewport changes (incl. mobile URL bar)
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(setup);
+    });
+  })();
+  </script>
+</body>
+</html>
