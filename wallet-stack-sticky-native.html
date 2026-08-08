@@ -12,7 +12,12 @@
     --peek: 60px;
     --count: 5;
     --top: 8vh;
-    --pass-h: calc(92vh - var(--top) - (var(--count) - 1) * var(--peek));
+    --gap: 8vh;            /* breathing room below the deck (mirrored by .stack padding) */
+    /* Uniform pass height. The shared "release line" is (100dvh - gap): per-pass
+       bottom margins push every pass's MARGIN-box bottom onto that line, so they
+       all hit the overscroll release threshold together (whole-deck bounce) while
+       keeping uniform heights. dvh tracks the real viewport (URL bar included). */
+    --pass-h: calc(100dvh - var(--gap) - var(--top) - (var(--count) - 1) * var(--peek));
     --gutter: clamp(1rem, 5vw, 4rem);
     --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
     --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
@@ -67,12 +72,7 @@
   /* --- the stack --- */
   .stack {
     padding-inline: var(--gutter);
-    /* With bottom-aligned heights the deck already reaches the viewport bottom
-       at assembly, so NO trailing padding — any extra scroll past assembly
-       would lift the sticky container's content edge above the passes' shared
-       bottom and drag the whole deck up. Zero padding makes max scroll land
-       exactly on the assembled deck. */
-    padding-bottom: 0;
+    padding-bottom: var(--gap);
   }
 
   .pass {
@@ -81,21 +81,15 @@
        the one before. Sticky pinning is done by the browser, so it never
        jitters the way a scroll-driven counter-transform does. */
     top: calc(var(--top) + var(--i) * var(--peek));
-    /* BOTTOM-ALIGNED heights: every pass's bottom sits at the viewport bottom
-       (100dvh) when pinned, so O_i + height = 100dvh for ALL passes. That
-       means they all hit the native-overscroll "release" threshold at the
-       same instant — the whole deck rubber-bands together as one rigid unit,
-       instead of the bottom 1–2 releasing as a chunk over the pinned rest.
-       Only the front pass's bottom is visible, so the taller back passes are
-       invisible — the assembled deck looks identical. dvh tracks the real
-       viewport so the shared bottom holds through the mobile URL bar. */
-    height: calc(100dvh - var(--top) - var(--i) * var(--peek));
+    height: var(--pass-h);
     max-width: 46rem;
     margin: 0 auto;
-    /* NO bottom margin: the sticky clamp counts the margin box, so a margin
-       would add to each pass's effective bottom and break the shared-bottom
-       alignment (dragging the upper passes up). The tall bottom-aligned
-       heights already supply plenty of scroll travel per pass. */
+    /* per-pass bottom margin so every pass's MARGIN-box bottom lands on the
+       same line. The sticky clamp uses the margin box, so this makes all
+       passes release together on overscroll — whole-deck bounce, uniform
+       heights. Trade-off: these inter-card gaps differ (bigger toward the
+       back of the stack). */
+    margin-bottom: calc((var(--count) - 1 - var(--i)) * var(--peek));
     border-radius: 28px;
     padding: 1.05rem clamp(1.4rem, 4vw, 2.6rem) clamp(1.4rem, 4vw, 2.6rem);
     display: flex;
