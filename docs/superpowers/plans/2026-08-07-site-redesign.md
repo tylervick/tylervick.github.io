@@ -155,7 +155,7 @@ In `basics.location`, replace the Boise values with:
 Replace `basics.summary` with:
 
 ```
-Staff software engineer specialising in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.
+Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.
 ```
 
 - [ ] **Step 7: Run the test to verify it passes**
@@ -564,12 +564,14 @@ export function buildJsonLd(resume, groups) {
       addressCountry: resume.basics.location.countryCode,
     },
     alumniOf: [...past.map(org), ...schools],
-    hasOccupation: {
-      '@type': 'Occupation',
-      name: current.roles[0].position,
-    },
   };
-  if (current) person.worksFor = org(current);
+
+  // Both of these describe a CURRENT position, so neither is emitted when
+  // there isn't one. Reading current.roles[0] unguarded would throw.
+  if (current) {
+    person.worksFor = org(current);
+    person.hasOccupation = { '@type': 'Occupation', name: current.roles[0].position };
+  }
 
   return {
     '@context': 'https://schema.org',
