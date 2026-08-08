@@ -303,7 +303,9 @@
        1920x1080 @ 400%  ->  480x270  ->  17px clipped
      1366x768 is one of the most common laptop resolutions in use, so this
      is reachable in practice. 200% zoom is clean with wide margins
-     (683x384 = +84px, 960x540 = +167px); only ~4x bites.
+     (683x384 = +84px, 960x540 = +167px). Onset is not a 4x cliff: on that
+     same 1366x768 laptop, 250% zoom is still clean and 300% already clips
+     30px, so the real bracket is ~2.7-2.9x, well before 400%.
 
      WHY IT IS ACCEPTED FOR NOW, AND WHAT IT COSTS: the page still renders,
      scrolls and reads — the cost is org and role lines clipped by tens of
