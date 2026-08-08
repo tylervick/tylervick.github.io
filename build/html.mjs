@@ -7,6 +7,19 @@ const esc = s =>
 
 const pad = n => String(n + 1).padStart(2, '0');
 
+// Cards in the scroll deck are FIXED-HEIGHT (`height: var(--card-h)` with
+// `overflow: hidden` in style.css) — this is load-bearing, because the
+// deck's aligned-release scroll mechanic requires every card to be exactly
+// the same height. Nothing upstream caps how many highlights an employer
+// can accrue (groupByEmployer flat-maps highlights across every role), so
+// an uncapped list silently clips inside the box with no visual warning.
+// 3 was measured empirically in-browser as the largest count that fits
+// every card at the tightest binding viewport (desktop 1440x757, where the
+// card is shortest relative to its content — Snap Inc. at 14 highlights
+// still overflowed at a cap of 4). Do not raise this without re-measuring
+// at that viewport; do not "simplify" it away.
+export const MAX_CARD_HIGHLIGHTS = 3;
+
 function renderRole(r) {
   return `        <div class="role"><span>${esc(r.position)}</span><span class="d">${esc(
     formatRange(r.startDate, r.endDate),
@@ -16,8 +29,11 @@ function renderRole(r) {
 function renderCard(card, i) {
   const brand = BRANDS[card.name];
   const roles = card.roles.map(renderRole).join('\n');
-  const bullets = card.highlights.length
-    ? `\n        <ul>\n${card.highlights
+  // Highlights are already ordered most-recent-role-first by groupByEmployer;
+  // taking the first N keeps the most recent work and must not re-sort.
+  const highlights = card.highlights.slice(0, MAX_CARD_HIGHLIGHTS);
+  const bullets = highlights.length
+    ? `\n        <ul>\n${highlights
         .map(h => `          <li>${esc(h)}</li>`)
         .join('\n')}\n        </ul>`
     : '';

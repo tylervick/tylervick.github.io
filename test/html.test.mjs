@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { renderPage } from '../build/html.mjs';
+import { renderPage, MAX_CARD_HIGHLIGHTS } from '../build/html.mjs';
 
 const resume = JSON.parse(readFileSync(new URL('../resume.json', import.meta.url)));
 const html = renderPage(resume);
@@ -38,6 +38,18 @@ test('Snap shows all three role titles in one card', () => {
   assert.ok(card.includes('Senior Software Engineer'));
   assert.ok(card.includes('Quality Engineer'));
   assert.ok(card.includes('QA Engineer'));
+});
+
+test(`no card renders more than ${MAX_CARD_HIGHLIGHTS} highlights`, () => {
+  const cardBodies = html.split('class="card"').slice(1);
+  assert.ok(cardBodies.length > 0, 'expected at least one card');
+  for (const body of cardBodies) {
+    const bullets = body.match(/<li>/g) ?? [];
+    assert.ok(
+      bullets.length <= MAX_CARD_HIGHLIGHTS,
+      `card rendered ${bullets.length} <li> elements, exceeding the cap of ${MAX_CARD_HIGHLIGHTS}`,
+    );
+  }
 });
 
 test('the runway is a real element', () => {
