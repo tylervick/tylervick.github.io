@@ -30,20 +30,35 @@
        .card__inner   → the visible pass. Its height is purely visual.
      Nothing here reads the viewport, so there is no dvh math, no release
      line to align, and no per-device tuning.                              */
-  .deck { --peek: clamp(1.9rem, 4.6vw, 2.9rem); --lead: 6vh; }
+  .deck {
+    --peek: clamp(1.9rem, 4.6vw, 2.9rem);
+    --lead: 6vh;
+    --gap: 0.75rem;      /* breathing room between passes in normal flow */
+  }
 
   .card {
     position: sticky;
     /* incremental top = the cascade. Each pass parks --peek below the one
-       before it, and the browser does the pinning. Cards are adjacent in
-       flow, so the deck stays tight — no gaps to scroll through. */
+       before it, and the browser does the pinning. */
     top: calc(var(--lead) + var(--i) * var(--peek));
+    /* the flow gap. Transparent, part of this card's box, so the next pass
+       slides over it — visible between passes, invisible once cascaded. */
+    padding-bottom: var(--gap);
   }
   .card:nth-child(1){--i:0} .card:nth-child(2){--i:1} .card:nth-child(3){--i:2}
   .card:nth-child(4){--i:3} .card:nth-child(5){--i:4} .card:nth-child(6){--i:5}
 
+  /* RUNWAY — and it must be a real ELEMENT, not padding on .deck.
+     A sticky box is caged by its containing block's CONTENT box, and padding
+     sits outside that, so padding-bottom grows the deck without granting the
+     last pass any travel. Without this the final pass can never pin: its
+     bottom edge IS the deck's bottom edge, so it scrolls up over the whole
+     stack instead. This empty child extends the content box and gives it the
+     same front-of-deck time every other pass gets from its next sibling. */
+  .runway { height: 46vh; }
+
   .card__inner {
-    border-radius:24px; color:#fff; overflow:hidden;
+    border-radius:24px; background:var(--bg); color:var(--fg); overflow:hidden;
     padding: 1.15rem clamp(1.3rem,4vw,2.1rem) clamp(1.5rem,4vw,2.1rem);
     /* purely visual — this is also the card's scroll travel, since the
        wrapper takes its height from here. One number, one meaning. */
@@ -65,7 +80,9 @@
   .bd { margin-top:auto; }
   .org { font-family:var(--serif); font-size:clamp(1.35rem,4vw,1.95rem); font-weight:500;
          line-height:1.1; letter-spacing:-.012em; }
-  .roles { margin-top:.95rem; border-top:1px solid rgba(255,255,255,.17); padding-top:.75rem; }
+  /* rules tint from the card's own foreground, so they read on light brands too */
+  .roles { margin-top:.95rem; padding-top:.75rem;
+           border-top:1px solid color-mix(in srgb, currentColor 20%, transparent); }
   .role { display:flex; justify-content:space-between; gap:1rem; font-size:11px;
           line-height:1.6; padding:.14rem 0; }
   .role .d { opacity:.52; font-variant-numeric:tabular-nums; white-space:nowrap; }
@@ -74,10 +91,17 @@
        padding-left:1rem; position:relative; margin-top:.42rem; }
   li::before { content:"—"; position:absolute; left:0; opacity:.45; }
 
-  .c1{background:#2b2a4a} .c2{background:#7a3b2e} .c3{background:#1f1b17}
-  .c4{background:#3a5a40} .c5{background:#2f4858} .c6{background:#8c3a1e}
+  /* Brand colours, carried over from the current site's spine palette in
+     style.css. Light brands (Snap, Wegmans, RIT) flip to dark text rather
+     than being darkened away from the real brand colour. */
+  .b-twds { --bg:hsl(235,64%,38%); --fg:#fff; }
+  .b-kagi { --bg:#2f3437;          --fg:#fff; }   /* not in the original palette */
+  .b-snap { --bg:#fffc00;          --fg:#161412; }
+  .b-epic { --bg:#ba122b;          --fg:#fff; }
+  .b-weg  { --bg:#ea8d1a;          --fg:#2a1c08; }
+  .b-rit  { --bg:#f76902;          --fg:#2a1204; }
 
-  .after { padding:14vh 0 16vh; }
+  .after { padding:9vh 0 10vh; }
   .after h2 { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
               color:var(--muted); font-weight:400; }
   .after p { font-family:var(--serif); font-size:1rem; line-height:1.6; margin-top:1rem; max-width:30rem; }
@@ -100,7 +124,7 @@
 <div class="wrap deck">
 
   <div class="card">
-    <div class="card__inner c1">
+    <div class="card__inner b-twds">
       <div class="hd"><span>01 — Disney</span><span>2024—</span></div>
       <div class="bd">
         <div class="org">The Walt Disney Studios</div>
@@ -114,7 +138,7 @@
   </div>
 
   <div class="card">
-    <div class="card__inner c2">
+    <div class="card__inner b-kagi">
       <div class="hd"><span>02 — Kagi</span><span>2024</span></div>
       <div class="bd">
         <div class="org">Kagi Inc.</div>
@@ -128,7 +152,7 @@
   </div>
 
   <div class="card">
-    <div class="card__inner c3">
+    <div class="card__inner b-snap">
       <div class="hd"><span>03 — Snap</span><span>2017—24</span></div>
       <div class="bd">
         <div class="org">Snap Inc.</div>
@@ -146,7 +170,7 @@
   </div>
 
   <div class="card">
-    <div class="card__inner c4">
+    <div class="card__inner b-epic">
       <div class="hd"><span>04 — Epic</span><span>2016—17</span></div>
       <div class="bd">
         <div class="org">Epic Systems</div>
@@ -160,7 +184,7 @@
   </div>
 
   <div class="card">
-    <div class="card__inner c5">
+    <div class="card__inner b-weg">
       <div class="hd"><span>05 — Wegmans</span><span>2013—16</span></div>
       <div class="bd">
         <div class="org">Wegmans</div>
@@ -174,7 +198,7 @@
   </div>
 
   <div class="card">
-    <div class="card__inner c6">
+    <div class="card__inner b-rit">
       <div class="hd"><span>06 — RIT</span><span>2011—15</span></div>
       <div class="bd">
         <div class="org">Rochester Institute of Technology</div>
@@ -182,6 +206,8 @@
       </div>
     </div>
   </div>
+
+  <div class="runway" aria-hidden="true"></div>
 
 </div>
 
