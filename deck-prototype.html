@@ -31,6 +31,7 @@
      Nothing here reads the viewport, so there is no dvh math, no release
      line to align, and no per-device tuning.                              */
   .deck {
+    --count: 6;          /* deck size — genuinely needed, see release note */
     --peek: clamp(1.9rem, 4.6vw, 2.9rem);
     --lead: 6vh;
     --gap: 0.75rem;      /* breathing room between passes in normal flow */
@@ -41,9 +42,23 @@
     /* incremental top = the cascade. Each pass parks --peek below the one
        before it, and the browser does the pinning. */
     top: calc(var(--lead) + var(--i) * var(--peek));
-    /* the flow gap. Transparent, part of this card's box, so the next pass
-       slides over it — visible between passes, invisible once cascaded. */
-    padding-bottom: var(--gap);
+
+    /* ALIGNED RELEASE.
+       A sticky box lets go when its BOTTOM meets the containing block's
+       bottom. Staggered tops + equal heights = staggered bottoms, so the
+       front pass hits that limit first and slides up over the stack while
+       the rest are still pinned. Adding (count-1-i) peeks of transparent
+       padding puts every wrapper's bottom on one line, so the deck releases
+       as a single unit.
+
+       This is why --count has to exist: simultaneous release is a property
+       of the whole deck, not of one card. The cost is that earlier passes
+       get more scroll travel than later ones.
+
+       Crucially the padding is on the WRAPPER, so .card__inner keeps one
+       constant height — every pass stays the same visible size. That part
+       was impossible while the card itself was the sticky element. */
+    padding-bottom: calc(var(--gap) + (var(--count) - 1 - var(--i)) * var(--peek));
   }
   .card:nth-child(1){--i:0} .card:nth-child(2){--i:1} .card:nth-child(3){--i:2}
   .card:nth-child(4){--i:3} .card:nth-child(5){--i:4} .card:nth-child(6){--i:5}
@@ -55,7 +70,7 @@
      bottom edge IS the deck's bottom edge, so it scrolls up over the whole
      stack instead. This empty child extends the content box and gives it the
      same front-of-deck time every other pass gets from its next sibling. */
-  .runway { height: 46vh; }
+  .runway { height: 30vh; }
 
   .card__inner {
     border-radius:24px; background:var(--bg); color:var(--fg); overflow:hidden;
