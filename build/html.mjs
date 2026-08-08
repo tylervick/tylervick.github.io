@@ -92,7 +92,7 @@ export function renderPage(resume) {
   </header>
 </div>
 
-<div class="deck" style="--count:${cards.length}">
+<div class="wrap deck" style="--count:${cards.length}">
 
 ${cards.map(renderCard).join('\n\n')}
 

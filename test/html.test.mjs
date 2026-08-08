@@ -13,7 +13,7 @@ test('renders a complete document', () => {
 });
 
 test('deck declares its size inline, not in CSS', () => {
-  assert.match(html, /class="deck"[^>]*style="--count:7"/);
+  assert.match(html, /class="[^"]*\bdeck\b[^"]*"[^>]*style="--count:7"/);
 });
 
 test('each card carries its own index', () => {
