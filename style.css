@@ -10,6 +10,14 @@
          -webkit-font-smoothing:antialiased; }
   .wrap { max-width:48rem; margin:0 auto; padding-inline:var(--gutter); }
 
+  /* Visually hidden, still announced. It names the work-history landmark for
+     assistive tech without appearing on the page. position:absolute is
+     load-bearing, not incidental: this heading sits next to the deck, and the
+     deck's aligned release is computed from flow geometry — an in-flow
+     heading, even a 1px one, would shift it. */
+  .vh { position:absolute; width:1px; height:1px; overflow:hidden;
+        clip-path:inset(50%); white-space:nowrap; }
+
   .intro { padding:9svh 0 7svh; }
   .kick { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--acc); }
   h1 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,5.5vw,2.7rem);
@@ -307,6 +315,14 @@
      same 1366x768 laptop, 250% zoom is still clean and 300% already clips
      30px, so the real bracket is ~2.7-2.9x, well before 400%.
 
+     PARTIALLY MITIGATED: the reduced-motion block at the end of this sheet
+     now sets height:auto, which removes this clipping ENTIRELY for anyone
+     with prefers-reduced-motion — measured 0px clipped at 341x192, 455x256
+     and 320x270, against 90px, 30px and 33px with the fixed height. That is
+     a meaningful overlap (users who zoom to 400% are disproportionately
+     likely to also request reduced motion) but it is NOT a general fix: the
+     default motion path is unchanged and still clips as described above.
+
      WHY IT IS ACCEPTED FOR NOW, AND WHAT IT COSTS: the page still renders,
      scrolls and reads — the cost is org and role lines clipped by tens of
      pixels inside the deck, not a blank or broken page. But it IS a real
@@ -321,7 +337,14 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .card__inner { animation:none }
+    /* height:auto is deliberate, and it does NOT contradict the fixed-height
+       invariant above. That invariant exists for exactly one reason: aligned
+       release needs every sticky wrapper to be the same height. This block
+       turns sticky OFF (.card is static), so there is no release to align and
+       nothing left for a fixed height to buy — while overflow:hidden on a
+       fixed box would still silently clip bullets mid-sentence. In static
+       flow the card can simply be as tall as its content, so it is. */
+    .card__inner { animation:none; height:auto }
     .card { position:static; padding-top:0; padding-bottom:1rem }
   }
 
