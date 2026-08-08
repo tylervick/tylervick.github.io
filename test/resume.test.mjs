@@ -15,19 +15,24 @@ test('formatRange: same-year role shows one year', () => {
   assert.equal(formatRange('2024-02', '2024-05'), '2024');
 });
 
+// Deliberately NOT pre-sorted: employers are interleaved and Snap's three
+// roles are out of order, so a broken/missing sort in groupByEmployer cannot
+// hide behind Map insertion order already matching the expected output.
 const WORK = [
-  { name: 'Function Health', position: 'Software Engineer', startDate: '2026-06' },
-  { name: 'The Walt Disney Studios', position: 'Staff Software Engineer', startDate: '2024-05', endDate: '2026-06', highlights: ['a'] },
+  { name: 'Snap Inc.', position: 'QA Engineer', startDate: '2017-06', endDate: '2019-05', highlights: ['c'] },
+  { name: 'Acme Corp.', position: 'Long Stint', startDate: '2010-01', endDate: '2015-01' },
   { name: 'Kagi Inc.', position: 'Browser Extension Support Engineer', startDate: '2024-02', endDate: '2024-05' },
   { name: 'Snap Inc.', position: 'Senior Software Engineer', startDate: '2020-08', endDate: '2024-02', highlights: ['b'] },
+  { name: 'Function Health', position: 'Software Engineer', startDate: '2026-06' },
+  { name: 'Acme Corp.', position: 'Rotation Lead', startDate: '2012-01', endDate: '2013-01' },
+  { name: 'The Walt Disney Studios', position: 'Staff Software Engineer', startDate: '2024-05', endDate: '2026-06', highlights: ['a'] },
   { name: 'Snap Inc.', position: 'Quality Engineer', startDate: '2019-05', endDate: '2020-08' },
-  { name: 'Snap Inc.', position: 'QA Engineer', startDate: '2017-06', endDate: '2019-05', highlights: ['c'] },
 ];
 
 test('groupByEmployer: one group per employer', () => {
   const g = groupByEmployer(WORK);
   assert.deepEqual(g.map(x => x.name), [
-    'Function Health', 'The Walt Disney Studios', 'Kagi Inc.', 'Snap Inc.',
+    'Function Health', 'The Walt Disney Studios', 'Kagi Inc.', 'Snap Inc.', 'Acme Corp.',
   ]);
 });
 
@@ -59,4 +64,13 @@ test('groupByEmployer: groups are ordered most recent first', () => {
   const g = groupByEmployer(WORK);
   const starts = g.map(x => x.startDate);
   assert.deepEqual(starts, [...starts].sort().reverse());
+});
+
+test('groupByEmployer: overlapping roles use the latest end, not the most recently started one', () => {
+  // Rotation Lead starts later (2012-01) but ends earlier (2013-01) than
+  // Long Stint (2010-01–2015-01). The group's end must be the max across
+  // all roles, not the endDate of whichever role has the latest startDate.
+  const acme = groupByEmployer(WORK).find(g => g.name === 'Acme Corp.');
+  assert.equal(acme.startDate, '2010-01');
+  assert.equal(acme.endDate, '2015-01');
 });

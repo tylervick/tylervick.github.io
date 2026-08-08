@@ -30,8 +30,12 @@ export function groupByEmployer(work) {
   const groups = [...byName.values()].map(g => {
     g.roles.sort((a, b) => b.startDate.localeCompare(a.startDate));
     g.startDate = g.roles.at(-1).startDate;
-    // any still-open role makes the whole employer current
-    g.endDate = g.roles.some(r => !r.endDate) ? undefined : g.roles[0].endDate;
+    // any still-open role makes the whole employer current; otherwise the
+    // group's end is the latest end across all roles, not just the most
+    // recently started one — roles can overlap.
+    g.endDate = g.roles.some(r => !r.endDate)
+      ? undefined
+      : g.roles.reduce((latest, r) => (r.endDate > latest ? r.endDate : latest), g.roles[0].endDate);
     g.highlights = g.roles.flatMap(r => r.highlights);
     return g;
   });
