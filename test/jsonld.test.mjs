@@ -47,10 +47,19 @@ test('address is Berkeley', () => {
 test('highlights are never emitted as structured data', () => {
   // They are CSS-hidden on short viewports, so marking them up would describe
   // content some visitors cannot see.
+  //
+  // EVERY highlight is checked, not just the first. Checking only
+  // flatMap(...)[0] made this test vacuous: adding
+  // `knowsAbout: groups.flatMap(g => g.highlights).slice(-3)` to buildJsonLd
+  // leaked three real highlights into the graph and the whole suite still
+  // passed, because the one sampled highlight happened to be at the other end
+  // of the list. A leak has no reason to start at index 0.
   const json = JSON.stringify(graph);
-  const highlight = resume.work.flatMap(w => w.highlights ?? [])[0];
-  assert.ok(highlight, 'fixture problem: resume has no highlights to check');
-  assert.ok(!json.includes(highlight), 'highlight text leaked into JSON-LD');
+  const highlights = resume.work.flatMap(w => w.highlights ?? []);
+  assert.ok(highlights.length > 0, 'fixture problem: resume has no highlights to check');
+  for (const h of highlights) {
+    assert.ok(!json.includes(h), `highlight text leaked into JSON-LD: "${h.slice(0, 60)}…"`);
+  }
 });
 
 test('ProfilePage points at the Person node', () => {
