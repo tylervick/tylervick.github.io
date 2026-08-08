@@ -45,13 +45,26 @@ test('invariant 4: svh only, never dvh', () => {
 // the four queries start with that exact prefix — so it would silently key
 // off whichever one happens to come first textually rather than the one the
 // assertions are actually about. Fixed by anchoring on each query's full,
-// unique condition text instead of a shared prefix, and by checking EVERY
-// media query in the file against the specific same-specificity selector(s)
-// it overrides (not just the first one), because the underlying bug — a
-// media rule sitting before the base rule it overrides is a silent no-op at
-// equal specificity — is a property of the whole sheet, not one query. This
-// project has shipped exactly that bug twice already.
-test('invariant 5: every media query overrides rules that precede it in source order', () => {
+// unique condition text instead of a shared prefix.
+//
+// PROPERTY ACTUALLY CHECKED (tightened after review): for three of the four
+// queries, each selector the query overrides must have EXACTLY ONE
+// unconditional (top-level, outside any @media block) rule in the whole
+// file, and that rule must sit before the query. "Exists before" alone is
+// NOT enough: a base rule earlier in the file plus a same-specificity
+// duplicate appended anywhere later (even after every media query) wins in
+// every browser and silently cancels the override, and an existence-only
+// check can't see that second rule at all. The exactly-one-at-top-level
+// count closes that gap: a stray top-level `.org { ... }` appended at the
+// end of the file makes the count 2 and fails, regardless of where the
+// original correctly-placed rule sits.
+// WHAT THIS STILL DOES NOT CATCH: a same-specificity duplicate placed
+// inside a *different* media query whose condition can be simultaneously
+// true with the one under test (e.g. a stray `.org` rule inside the
+// (max-height:560px) block, which overlaps (max-height:600px)). That's a
+// narrower, second-order case of the same bug class, not exercised by any
+// known regression here — flagged rather than silently unhandled.
+test('invariant 5: every media query overrides rules that precede it, with no later duplicate', () => {
   const mqShort  = rules.indexOf('@media (max-height: 600px)');
   const mqWide   = rules.indexOf('@media (min-width: 800px) and (min-height: 800px)');
   const mqFloor  = rules.indexOf('@media (max-height: 560px), (max-width: 300px)');
@@ -66,26 +79,67 @@ test('invariant 5: every media query overrides rules that precede it in source o
     assert.ok(idx > -1, `${name} media query missing`);
   }
 
+  // Strip the body of every @media block (balanced-brace scan — nothing in
+  // this sheet nests a block inside a block further than one level) to get
+  // the TOP-LEVEL stylesheet: only rules that apply unconditionally. Used
+  // below to count how many unconditional rules exist for a selector,
+  // wherever in the file they sit.
+  function stripMediaBlocks(text) {
+    let out = '';
+    let i = 0;
+    while (i < text.length) {
+      const at = text.indexOf('@media', i);
+      if (at === -1) { out += text.slice(i); break; }
+      out += text.slice(i, at);
+      const braceStart = text.indexOf('{', at);
+      let depth = 1;
+      let j = braceStart + 1;
+      while (depth > 0 && j < text.length) {
+        if (text[j] === '{') depth++;
+        else if (text[j] === '}') depth--;
+        j++;
+      }
+      i = j;
+    }
+    return out;
+  }
+  const topLevel = stripMediaBlocks(rules);
+
+  function assertSoleUnconditionalRuleBefore(sel, mq, label) {
+    const base = rules.lastIndexOf(`${sel} {`, mq);
+    assert.ok(base > -1 && base < mq,
+      `${sel} base rule must precede the ${label} query or the override silently does nothing`);
+    const count = topLevel.split(`${sel} {`).length - 1;
+    assert.equal(count, 1,
+      `${sel} must have exactly one unconditional rule in the file (found ${count}) — a ` +
+      `same-specificity duplicate anywhere, before or after, wins over the ${label} query ` +
+      `regardless of this query's own position`);
+  }
+
   // Short-viewport query overrides .role/.roles/.org (identity survives first).
   for (const sel of ['.role', '.roles', '.org']) {
-    const base = rules.lastIndexOf(`${sel} {`, mqShort);
-    assert.ok(base > -1 && base < mqShort,
-      `${sel} base rule must precede the short-viewport query or the override silently does nothing`);
+    assertSoleUnconditionalRuleBefore(sel, mqShort, 'short-viewport');
   }
 
   // Wide-tall enhancement flips the highlight cap back on — must follow the
-  // unconditional base cap rule it overrides (same selector, equal specificity).
-  const capBase = rules.indexOf('.card__inner li:nth-child(n+2) {');
-  assert.ok(capBase > -1 && capBase < mqWide,
-    'the base highlight-cap rule must precede the wide-tall enhancement or it silently does nothing');
+  // unconditional base cap rule it overrides (same selector, equal
+  // specificity). Its own occurrence lives inside the wide-tall @media
+  // block itself, so stripMediaBlocks removes it before counting — only
+  // the true unconditional cap rule is left, and it must count 1, not 0 or 2.
+  assertSoleUnconditionalRuleBefore('.card__inner li:nth-child(n+2)', mqWide, 'wide-tall enhancement');
 
   // Reduced-motion un-stickies .card and disables .card__inner's animation —
-  // both same-specificity selectors it must come after.
+  // both same-specificity selectors it must come after with no later
+  // unconditional duplicate.
   for (const sel of ['.card__inner', '.card']) {
-    const base = rules.lastIndexOf(`${sel} {`, mqMotion);
-    assert.ok(base > -1 && base < mqMotion,
-      `${sel} base rule must precede the reduced-motion query or the override silently does nothing`);
+    assertSoleUnconditionalRuleBefore(sel, mqMotion, 'reduced-motion');
   }
+
+  // The bullet-floor query targets `.card__inner ul`, a compound selector
+  // that outranks the plain `ul { ... }` base rule on specificity alone —
+  // source order is irrelevant there, so unlike the other three there is
+  // no equal-specificity race to guard and no duplicate-rule check applies.
+  // Existence + relative order is the whole of what's checked for it.
 
   // Pin the queries' relative order too, so a future reshuffle can't
   // reintroduce the bug this test exists to catch without tripping it.
