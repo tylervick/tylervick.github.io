@@ -14,25 +14,29 @@ const pad = n => String(n + 1).padStart(2, '0');
 // can accrue (groupByEmployer flat-maps highlights across every role), so
 // an uncapped list silently clips inside the box with no visual warning.
 //
-// 3 is a hard ceiling on whatever reaches the DOM — not, by itself, a
-// viewport-safety guarantee. An earlier version of this comment claimed
-// "3 fits every card" from a check at exactly two viewports (1440x757 and
-// 500x789); that was wrong. Whether N highlights fit is TWO-DIMENSIONAL:
-// --card-h is svh-based, so the box height tracks viewport HEIGHT only,
-// while how many lines each <li> wraps onto tracks viewport WIDTH — and
-// those two pressures peak at different viewports (a short-but-wide window
-// like 1280x720 clipped with a height-only fix; a narrow-but-tall phone
-// would clip a width-only one). Checking one viewport, or even a few, does
-// not prove the general case.
+// 3 is a hard ceiling on whatever reaches the DOM — it is NOT, by itself, a
+// viewport-safety guarantee, and two earlier rounds of trying to make it
+// one by tuning CSS breakpoints to measured pixels both failed: whether N
+// highlights fit is TWO-DIMENSIONAL. --card-h is svh-based, so the box
+// height tracks viewport HEIGHT only, while how many lines each <li> wraps
+// onto tracks viewport WIDTH — and those two pressures peak at different
+// viewports, so a breakpoint tuned on one axis (or even both axes
+// separately) reliably leaves a gap at some untested combination of the
+// two. Checking one viewport, or a handful, does not prove the general
+// case; the constraint is continuous, not discrete.
 //
-// The actual no-clip guarantee for real viewports comes from this cap
-// PLUS the "CLIP GUARD" media queries in style.css, which visually drop to
-// 2 and then 1 rendered bullet as width or height shrinks. See that
-// comment for the measured width x height matrix. If you change this
-// constant, or add highlights that render very differently in length,
+// The actual no-clip guarantee for real viewports comes from this cap of 3
+// PLUS the "HIGHLIGHT CAP" rule in style.css, which renders only 1 bullet
+// by default (measured safe at 320x568, the smallest viewport checked) and
+// reveals all 3 only at (min-width:800px) and (min-height:800px) — a single
+// threshold with large, measured margin on both axes, not a chain of
+// tuned tiers. See that comment for the full reasoning and measured
+// boundary values (728px height is where 3 bullets start overflowing;
+// .wrap's 768px max-width is where content width saturates). If you change
+// this constant, or add highlights that render very differently in length,
 // re-measure with a width AND height matrix (scrollHeight - clientHeight
 // on every .card__inner, across viewports spanning both axes) — not by
-// eyeballing one window size — and update style.css's thresholds too.
+// eyeballing one window size — and update style.css's threshold too.
 export const MAX_CARD_HIGHLIGHTS = 3;
 
 function renderRole(r) {

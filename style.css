@@ -149,18 +149,62 @@
               color:var(--muted); font-weight:400; }
   .after p { font-family:var(--serif); font-size:1rem; line-height:1.6; margin-top:1rem; max-width:30rem; }
 
-  /* Short viewports (landscape phones). Shrinks the cascade so the front pass
-     keeps usable room, and trims content to what genuinely fits — the pass
-     height is FIXED here (the aligned release needs equal heights), so
+  /* HIGHLIGHT CAP — .card__inner is fixed-height with overflow:hidden (see
+     the EXACT height note above), so how many <li> bullets it can show
+     without silently clipping mid-sentence depends on TWO independent axes:
+     --card-h comes from svh, so it tracks viewport HEIGHT only, while how
+     many lines each <li> wraps onto tracks viewport WIDTH (narrower = more
+     wrap). Those two pressures peak at different viewports, which is why
+     tuning discrete breakpoints to measured pixels failed twice running —
+     each round picked thresholds that fit whichever viewports got sampled
+     and left a gap at ones nobody measured (round 1: clipped at 375x667,
+     360x740, 320x601, 1280x720; round 2, tiers at 780px/340px: clipped at
+     341-370px wide x 601-700px tall, including the common 360x640 phone).
+
+     Instead of chasing the 2D boundary to the pixel, this uses ONE
+     threshold with large margin on BOTH axes:
+       - BASE: 1 bullet, unconditionally, no media query needed. Measured to
+         fit at 320x568 — the smallest viewport in the measured set — and by
+         monotonicity (more width or height only ever creates more room,
+         never less) that bounds every larger viewport too.
+       - ENHANCEMENT: 3 bullets at (min-width:800px) and (min-height:800px).
+         .wrap caps content width at 768px, so at viewport width >= ~780px
+         text wraps identically no matter how much wider it gets — width
+         stops mattering. 800px sits comfortably inside that saturated
+         regime. On the height axis, 3 bullets were measured to fit at
+         728px and overflow at 720px; 800px leaves 72px of margin above
+         that measured boundary. Both halves of the AND are deep in
+         measured-safe territory, not tuned to an edge.
+     A middle 2-bullet tier was considered but not added: the measured data
+     shows the failure boundary itself is 2D (360x740 fits 2 bullets, but
+     360x640 — same width — does not), so a 2-bullet threshold safe by ~50px
+     on both axes was not demonstrated and would need real measurement, not
+     another guess. Ship correctness over density.
+
+     MAX_CARD_HIGHLIGHTS in build/html.mjs caps the DOM at 3 <li> per card,
+     which is what makes a 2nd and 3rd <li> available for this rule to
+     reveal at the enhancement tier — raising that cap or changing this
+     threshold both require re-measuring scrollHeight - clientHeight on
+     every .card__inner across a width AND height matrix, never one
+     viewport (that single-viewport blind spot is exactly what caused the
+     original cap-of-3 regression). */
+  .card__inner li:nth-child(n+2) { display: none; }
+
+  /* Short viewports (landscape phones). Shrinks the cascade so the front
+     pass keeps usable room, and shrinks type/spacing to what fits — the
+     pass height is FIXED here (the aligned release needs equal heights), so
      anything that doesn't fit would be clipped rather than reflowed.
-     Identity survives first: org, roles and dates always stay.
+     Identity survives first: org, roles and dates always stay. Bullet count
+     itself is NOT this block's concern any more — the unconditional
+     HIGHLIGHT CAP rule above already holds every viewport to 1 bullet
+     unless the (min-width:800px) and (min-height:800px) enhancement lifts
+     it, and short-height phones never clear that height threshold.
 
      NOTE: this block must come AFTER the base rules it overrides. At equal
      specificity source order decides, and sitting earlier in the sheet is
      exactly why an earlier version of it silently did nothing. */
   @media (max-height: 600px) {
     .deck { --peek: 1.35rem; --lead: 3svh; }
-    .card__inner li:nth-child(n+2) { display: none; }
     .org { font-size: 1.15rem; }
     li { font-size: .8rem; line-height: 1.45; }
     /* Snap carries three role lines — the tallest pass, so it sets the floor */
@@ -168,35 +212,11 @@
     .role { font-size: 10.5px; line-height: 1.45; padding: .06rem 0; }
   }
 
-  /* CLIP GUARD — two more tiers on top of the max-height:600px one above.
-     .card__inner is fixed-height (see the EXACT height note above), and how
-     much of that box 3 highlights fill depends on TWO independent axes:
-     --card-h comes from svh, so it tracks viewport HEIGHT only; but how many
-     lines each <li> wraps onto tracks viewport WIDTH (narrower = more wrap).
-     Those two pressures don't peak at the same viewport, so no single
-     breakpoint on either axis alone covers both — a width query misses a
-     short-but-wide window (1280x720 clipped 6px with only a height query),
-     and a height query misses a narrow-but-tall phone.
-
-     Thresholds below are MEASURED (scrollHeight - clientHeight on every
-     .card__inner, generated index.html, in-browser), not derived:
-       - cap 3 (JS default) clips at 320x601 (199px), 320x700 (142px),
-         360x740 (79px), 375x667 (77px), 500x601 (49px), 700x601 (3px),
-         1280x720 (6px) — but is exactly 0px clear at 1440x900/1920x1080.
-       - dropping to 2 bullets below max-width:780px OR max-height:780px
-         (both conditions, since .wrap saturates at 768px so width stops
-         mattering above that) clears every case above except 320x601 (still
-         82px) and 320x700 (still 25px).
-       - dropping to 1 bullet below max-width:340px clears those too.
-     Re-measure with a width AND height matrix (not one viewport) before
-     changing either the cap in build/html.mjs or these thresholds — a
-     single-viewport check is exactly how the original cap-of-3 (measured
-     only at 1440x757 and 500x789) missed this. */
-  @media (max-width: 780px), (max-height: 780px) {
-    .card__inner li:nth-child(n+3) { display: none; }
-  }
-  @media (max-width: 340px) {
-    .card__inner li:nth-child(n+2) { display: none; }
+  /* Wide-and-tall enhancement for the HIGHLIGHT CAP rule above — see that
+     comment for the measured margins on both axes. Must stay after it in
+     source order (equal-specificity selector; last declaration wins). */
+  @media (min-width: 800px) and (min-height: 800px) {
+    .card__inner li:nth-child(n+2) { display: list-item; }
   }
 
   @media (prefers-reduced-motion: reduce) {
