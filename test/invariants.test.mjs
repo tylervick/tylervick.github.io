@@ -47,23 +47,61 @@ test('invariant 4: svh only, never dvh', () => {
 // assertions are actually about. Fixed by anchoring on each query's full,
 // unique condition text instead of a shared prefix.
 //
-// PROPERTY ACTUALLY CHECKED (tightened after review): for three of the four
-// queries, each selector the query overrides must have EXACTLY ONE
-// unconditional (top-level, outside any @media block) rule in the whole
-// file, and that rule must sit before the query. "Exists before" alone is
-// NOT enough: a base rule earlier in the file plus a same-specificity
-// duplicate appended anywhere later (even after every media query) wins in
-// every browser and silently cancels the override, and an existence-only
-// check can't see that second rule at all. The exactly-one-at-top-level
-// count closes that gap: a stray top-level `.org { ... }` appended at the
-// end of the file makes the count 2 and fails, regardless of where the
-// original correctly-placed rule sits.
-// WHAT THIS STILL DOES NOT CATCH: a same-specificity duplicate placed
-// inside a *different* media query whose condition can be simultaneously
-// true with the one under test (e.g. a stray `.org` rule inside the
-// (max-height:560px) block, which overlaps (max-height:600px)). That's a
-// narrower, second-order case of the same bug class, not exercised by any
-// known regression here — flagged rather than silently unhandled.
+// PROPERTY ACTUALLY CHECKED (re-tightened after a second review round): the
+// selectors to check are no longer hand-picked. A hand-picked list drifts —
+// round 1 of this test checked .role/.roles/.org/.card/.card__inner/the
+// highlight-cap selector because those were the ones this comment happened
+// to name, and missed that `li` and `.deck` are ALSO overridden inside the
+// short-viewport query (line ~233's `.deck { --peek/--lead }` and line
+// ~235's `li { font-size/line-height }`), so a stray unconditional
+// duplicate of either would have silently passed. That is precisely the
+// failure mode this invariant exists to prevent, reproduced inside the test
+// meant to prevent it. Fixed by DERIVING the selector set: every rule
+// actually written inside every @media block is parsed out and checked,
+// so a future edit that adds a declaration to a media query is covered
+// automatically, with nothing to remember to update here.
+//
+// For each derived selector, this asserts it has EXACTLY ONE unconditional
+// (top-level, outside every @media block) rule in the whole file, and that
+// occurrence precedes the query. "Exists before" alone is not enough — see
+// the round-1 note below — so the count must be exactly 1, not merely >=1;
+// a same-specificity duplicate ANYWHERE else in the file (before the query,
+// between two queries, or after all of them) makes the count 2 and fails,
+// regardless of where the original correctly-placed rule sits. Matching is
+// via regex with escaped selector metacharacters and \s+ / \s* for
+// whitespace, so `.org{`, `.org  {` and a selector split across a line
+// break are all recognized as the same rule a browser would see — the
+// round-1 version's `split('${sel} {')` required exactly one literal space
+// and would have missed a same-selector duplicate written without one.
+//
+// SPECIFICITY: a selector derived from inside a media query only needs this
+// check if an UNCONDITIONAL rule exists somewhere with the exact same
+// selector text — that is the only configuration where source order (and
+// therefore a later duplicate) can silently win. A compound/descendant
+// selector inside a query that has no identical unconditional counterpart
+// (e.g. `.card__inner ul` inside the bullet-floor query, vs. the base rule
+// being the plain, lower-specificity `ul { ... }`) is safe regardless of
+// source order — CSS specificity decides before order ever gets a vote —
+// so no duplicate check applies to it. Today `.card__inner ul` is the only
+// selector in this shape; it is named explicitly below rather than silently
+// skipped, and the assertion fails loudly if a new, unexplained zero-match
+// selector shows up so it gets a human decision instead of a silent pass.
+//
+// WHAT THIS STILL DOES NOT CATCH:
+//  - A same-specificity duplicate placed INSIDE a different, condition-
+//    overlapping media query (e.g. a stray `.org` rule inside the
+//    (max-height:560px) block, which can be simultaneously true with
+//    (max-height:600px)). Every occurrence inside any @media block is
+//    treated as conditional and excluded from the unconditional count, so
+//    an in-media duplicate is invisible to this check either way. Narrower,
+//    second-order case of the same bug class; not exercised by any known
+//    regression here.
+//  - Selector lists with commas nested inside a pseudo-class, e.g.
+//    `:is(.a, .b)` — the extractor splits naively on every comma. Not
+//    present in this file today; would mis-parse if introduced.
+//  - Rules nested inside a media block (CSS nesting, `@supports` inside
+//    `@media`, etc.) — the extractor assumes one flat level of
+//    `selector { declarations }` per block, true of all four blocks today.
 test('invariant 5: every media query overrides rules that precede it, with no later duplicate', () => {
   const mqShort  = rules.indexOf('@media (max-height: 600px)');
   const mqWide   = rules.indexOf('@media (min-width: 800px) and (min-height: 800px)');
@@ -79,18 +117,15 @@ test('invariant 5: every media query overrides rules that precede it, with no la
     assert.ok(idx > -1, `${name} media query missing`);
   }
 
-  // Strip the body of every @media block (balanced-brace scan — nothing in
-  // this sheet nests a block inside a block further than one level) to get
-  // the TOP-LEVEL stylesheet: only rules that apply unconditionally. Used
-  // below to count how many unconditional rules exist for a selector,
-  // wherever in the file they sit.
-  function stripMediaBlocks(text) {
-    let out = '';
+  // Locate every @media block (balanced-brace scan — nothing in this sheet
+  // nests a block inside a block further than one level), recording its
+  // span so occurrences inside it can be told apart from unconditional ones.
+  function findMediaBlocks(text) {
+    const blocks = [];
     let i = 0;
-    while (i < text.length) {
+    while (true) {
       const at = text.indexOf('@media', i);
-      if (at === -1) { out += text.slice(i); break; }
-      out += text.slice(i, at);
+      if (at === -1) break;
       const braceStart = text.indexOf('{', at);
       let depth = 1;
       let j = braceStart + 1;
@@ -99,47 +134,70 @@ test('invariant 5: every media query overrides rules that precede it, with no la
         else if (text[j] === '}') depth--;
         j++;
       }
+      blocks.push({
+        condition: text.slice(at, braceStart).trim(),
+        start: at,
+        end: j, // one past the block's closing brace
+        body: text.slice(braceStart + 1, j - 1),
+      });
       i = j;
+    }
+    return blocks;
+  }
+  const mediaBlocks = findMediaBlocks(rules);
+  const isInsideAnyMediaBlock = (idx) => mediaBlocks.some(b => idx >= b.start && idx < b.end);
+
+  // Parse the selector(s) out of every flat `selector { declarations }`
+  // rule in a block's body, splitting selector lists on top-level commas.
+  function extractSelectors(body) {
+    const out = [];
+    const re = /([^{}]+)\{[^{}]*\}/g;
+    let m;
+    while ((m = re.exec(body))) {
+      for (const part of m[1].split(',')) {
+        const sel = part.trim().replace(/\s+/g, ' ');
+        if (sel) out.push(sel);
+      }
     }
     return out;
   }
-  const topLevel = stripMediaBlocks(rules);
 
-  function assertSoleUnconditionalRuleBefore(sel, mq, label) {
-    const base = rules.lastIndexOf(`${sel} {`, mq);
-    assert.ok(base > -1 && base < mq,
-      `${sel} base rule must precede the ${label} query or the override silently does nothing`);
-    const count = topLevel.split(`${sel} {`).length - 1;
-    assert.equal(count, 1,
-      `${sel} must have exactly one unconditional rule in the file (found ${count}) — a ` +
-      `same-specificity duplicate anywhere, before or after, wins over the ${label} query ` +
-      `regardless of this query's own position`);
+  function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  // Whitespace-flexible: tokens are escaped individually and rejoined with
+  // \s+, so internal formatting differences don't defeat the match, and the
+  // brace may be preceded by zero or more spaces/newlines.
+  function selectorPattern(sel) {
+    const tokens = sel.split(' ').filter(Boolean).map(escapeRegExp);
+    return new RegExp(tokens.join('\\s+') + '\\s*\\{', 'g');
   }
 
-  // Short-viewport query overrides .role/.roles/.org (identity survives first).
-  for (const sel of ['.role', '.roles', '.org']) {
-    assertSoleUnconditionalRuleBefore(sel, mqShort, 'short-viewport');
+  // The one selector known today to have no identical unconditional
+  // counterpart because it wins on specificity instead of source order —
+  // see the SPECIFICITY note above. Anything else with zero unconditional
+  // matches is a hard failure, not a silent skip.
+  const specificityOnly = new Set(['.card__inner ul']);
+
+  for (const block of mediaBlocks) {
+    for (const sel of extractSelectors(block.body)) {
+      const matches = [...rules.matchAll(selectorPattern(sel))];
+      const unconditional = matches.filter(m => !isInsideAnyMediaBlock(m.index));
+
+      if (unconditional.length === 0) {
+        assert.ok(specificityOnly.has(sel),
+          `"${sel}" inside "${block.condition}" has no unconditional rule anywhere in the ` +
+          `file. If it wins on specificity rather than source order, add it to specificityOnly ` +
+          `with a reason; otherwise this selector is likely a typo and silently does nothing`);
+        continue;
+      }
+
+      assert.equal(unconditional.length, 1,
+        `"${sel}" must have exactly one unconditional rule in the file (found ` +
+        `${unconditional.length}) — a same-specificity duplicate anywhere wins over the ` +
+        `"${block.condition}" query regardless of this query's own position`);
+      assert.ok(unconditional[0].index < block.start,
+        `"${sel}" base rule must precede "${block.condition}" or the override silently does nothing`);
+    }
   }
-
-  // Wide-tall enhancement flips the highlight cap back on — must follow the
-  // unconditional base cap rule it overrides (same selector, equal
-  // specificity). Its own occurrence lives inside the wide-tall @media
-  // block itself, so stripMediaBlocks removes it before counting — only
-  // the true unconditional cap rule is left, and it must count 1, not 0 or 2.
-  assertSoleUnconditionalRuleBefore('.card__inner li:nth-child(n+2)', mqWide, 'wide-tall enhancement');
-
-  // Reduced-motion un-stickies .card and disables .card__inner's animation —
-  // both same-specificity selectors it must come after with no later
-  // unconditional duplicate.
-  for (const sel of ['.card__inner', '.card']) {
-    assertSoleUnconditionalRuleBefore(sel, mqMotion, 'reduced-motion');
-  }
-
-  // The bullet-floor query targets `.card__inner ul`, a compound selector
-  // that outranks the plain `ul { ... }` base rule on specificity alone —
-  // source order is irrelevant there, so unlike the other three there is
-  // no equal-specificity race to guard and no duplicate-rule check applies.
-  // Existence + relative order is the whole of what's checked for it.
 
   // Pin the queries' relative order too, so a future reshuffle can't
   // reintroduce the bug this test exists to catch without tripping it.
