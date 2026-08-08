@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - **Zero dependencies.** No npm installs. Only Node built-ins (`node:fs`, `node:path`, `node:test`, `node:assert`).
-- **Run tests with:** `node --test test/`
+- **Run tests with:** `node --test`
 - **Run the build with:** `node build.mjs`
 - **Generated output is committed.** `index.html` is a build artifact that lives in git.
 - **No runtime JS for content.** The only script on the page is the existing clock.
@@ -918,7 +918,7 @@ test('style.css contains no deck-size data', () => {
 
 - [ ] **Step 5: Run the whole suite**
 
-Run: `node --test test/`
+Run: `node --test`
 Expected: PASS — all tests across all files.
 
 - [ ] **Step 6: Update the colophon so it stays honest**
@@ -1056,7 +1056,7 @@ git rm deck-prototype.html
 
 - [ ] **Step 5: Run the whole suite**
 
-Run: `node --test test/`
+Run: `node --test`
 Expected: PASS across all files.
 
 - [ ] **Step 6: Commit**
