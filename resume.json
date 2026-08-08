@@ -3,7 +3,6 @@
   "basics": {
     "name": "Tyler Vick",
     "email": "tyler@tylervick.com",
-    "phone": "REDACTED",
     "url": "https://tylervick.com",
     "summary": "Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.",
     "profiles": [
@@ -22,7 +21,8 @@
     "location": {
       "countryCode": "US",
       "city": "Berkeley",
-      "region": "CA"
+      "region": "CA",
+      "timezone": "America/Los_Angeles"
     }
   },
   "education": [
@@ -59,7 +59,6 @@
         "Developed and documented secure and performant APIs, exceeding the 99.99% availability SLA.",
         "Integrated generative AI tools such as Stable Diffusion and the Segment Anything Model for creating and editing digital assets."
       ],
-      "company": "The Walt Disney Studios",
       "location": "Boise, ID - Remote"
     },
     {
@@ -91,7 +90,6 @@
         "Designed executive-level operational metrics for system health and developer support.",
         "Mentored and onboarded new engineers and interns, overseeing a 3x team-size increase."
       ],
-      "company": "Snap Inc.",
       "location": "Boise, ID - Remote"
     },
     {
@@ -137,7 +135,6 @@
         "Created server extensions in MUMPS for over 40 custom insurance providers.",
         "Built and maintained internal Web Extension distribution platform."
       ],
-      "company": "Epic Systems Corporation",
       "location": "Madison, WI"
     },
     {
@@ -152,7 +149,6 @@
         "Created automated test suites for mobile applications.",
         "Segmented mobile traffic analytics to optimize platform test coverage."
       ],
-      "company": "Wegmans Food Markets, Inc",
       "location": "Rochester, NY"
     }
   ],
