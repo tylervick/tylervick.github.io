@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cascading scroll deck — correct structure</title>
+<style>
+  :root {
+    --paper:#f4f1ea; --ink:#161412; --muted:#7d7365;
+    --acc:#ff4f00;
+    --mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --gutter: clamp(1rem,5vw,2.5rem);
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--paper); color:var(--ink); font-family:var(--mono);
+         -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:48rem; margin:0 auto; padding-inline:var(--gutter); }
+
+  .intro { padding:9vh 0 7vh; }
+  .kick { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--acc); }
+  h1 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,5.5vw,2.7rem);
+       line-height:1.07; letter-spacing:-.015em; margin:.9rem 0 0; }
+  .sub { color:var(--muted); font-size:12.5px; line-height:1.65; margin-top:1rem; max-width:31rem; }
+
+  /* ================= THE DECK =================
+     Two elements, two jobs:
+       .card          → sticky wrapper. Its HEIGHT is the scroll travel.
+                        Its PADDING-TOP is the cascade offset.
+       .card__inner   → the visible pass. Its height is purely visual.
+     Nothing here reads the viewport, so there is no dvh math, no release
+     line to align, and no per-device tuning.                              */
+  .deck { --peek: clamp(1.9rem, 4.6vw, 2.9rem); --lead: 6vh; }
+
+  .card {
+    position: sticky;
+    /* incremental top = the cascade. Each pass parks --peek below the one
+       before it, and the browser does the pinning. Cards are adjacent in
+       flow, so the deck stays tight — no gaps to scroll through. */
+    top: calc(var(--lead) + var(--i) * var(--peek));
+  }
+  .card:nth-child(1){--i:0} .card:nth-child(2){--i:1} .card:nth-child(3){--i:2}
+  .card:nth-child(4){--i:3} .card:nth-child(5){--i:4} .card:nth-child(6){--i:5}
+
+  .card__inner {
+    border-radius:24px; color:#fff; overflow:hidden;
+    padding: 1.15rem clamp(1.3rem,4vw,2.1rem) clamp(1.5rem,4vw,2.1rem);
+    /* purely visual — this is also the card's scroll travel, since the
+       wrapper takes its height from here. One number, one meaning. */
+    min-height: 58vh;
+    display:flex; flex-direction:column;
+    box-shadow: 0 1px 0 rgba(255,255,255,.14) inset,
+                0 26px 50px -30px rgba(0,0,0,.6);
+    transform-origin: 50% 0%;
+    /* depth cue as the pass gets buried. Progressive enhancement — if the
+       engine lacks scroll-driven animations, the deck still cascades. */
+    animation: bury linear both;
+    animation-timeline: view();
+    animation-range: exit-crossing 0% exit-crossing 100%;
+  }
+  @keyframes bury { to { transform: scale(.94); filter: brightness(.82); } }
+
+  .hd { display:flex; justify-content:space-between; align-items:baseline;
+        font-size:10px; letter-spacing:.15em; text-transform:uppercase; opacity:.72; }
+  .bd { margin-top:auto; }
+  .org { font-family:var(--serif); font-size:clamp(1.35rem,4vw,1.95rem); font-weight:500;
+         line-height:1.1; letter-spacing:-.012em; }
+  .roles { margin-top:.95rem; border-top:1px solid rgba(255,255,255,.17); padding-top:.75rem; }
+  .role { display:flex; justify-content:space-between; gap:1rem; font-size:11px;
+          line-height:1.6; padding:.14rem 0; }
+  .role .d { opacity:.52; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  ul { list-style:none; margin:.9rem 0 0; padding:0; }
+  li { font-family:var(--serif); font-size:.87rem; line-height:1.58; opacity:.9;
+       padding-left:1rem; position:relative; margin-top:.42rem; }
+  li::before { content:"—"; position:absolute; left:0; opacity:.45; }
+
+  .c1{background:#2b2a4a} .c2{background:#7a3b2e} .c3{background:#1f1b17}
+  .c4{background:#3a5a40} .c5{background:#2f4858} .c6{background:#8c3a1e}
+
+  .after { padding:14vh 0 16vh; }
+  .after h2 { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
+              color:var(--muted); font-weight:400; }
+  .after p { font-family:var(--serif); font-size:1rem; line-height:1.6; margin-top:1rem; max-width:30rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card__inner { animation:none }
+    .card { position:static; padding-top:0; padding-bottom:1rem }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="intro">
+    <span class="kick">Tyler Vick</span>
+    <h1>I make software easier to<br>build, test, and&nbsp;ship.</h1>
+    <p class="sub">Staff engineer working on developer tooling and platform infrastructure — build systems, test platforms, and the unglamorous machinery that lets other people ship.</p>
+  </header>
+</div>
+
+<div class="wrap deck">
+
+  <div class="card">
+    <div class="card__inner c1">
+      <div class="hd"><span>01 — Disney</span><span>2024—</span></div>
+      <div class="bd">
+        <div class="org">The Walt Disney Studios</div>
+        <div class="roles"><div class="role"><span>Staff Software Engineer · Contract</span><span class="d">2024—</span></div></div>
+        <ul>
+          <li>Tech lead for Studioshare Exchange, sharing digital assets across Marvel, Lucasfilm, Pixar, and 20th Century Studios.</li>
+          <li>Built a Gaussian Splat WebXR viewer used by location scouts for previsualization.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__inner c2">
+      <div class="hd"><span>02 — Kagi</span><span>2024</span></div>
+      <div class="bd">
+        <div class="org">Kagi Inc.</div>
+        <div class="roles"><div class="role"><span>Browser Extension Engineer · Consultant</span><span class="d">Feb—May</span></div></div>
+        <ul>
+          <li>Shipped WebExtensions support for Orion, Kagi's WebKit-based browser.</li>
+          <li>First iOS browser with one-click installs from the Chrome and Firefox stores.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__inner c3">
+      <div class="hd"><span>03 — Snap</span><span>2017—24</span></div>
+      <div class="bd">
+        <div class="org">Snap Inc.</div>
+        <div class="roles">
+          <div class="role"><span>Senior Software Engineer</span><span class="d">2020—24</span></div>
+          <div class="role"><span>Quality Engineer</span><span class="d">2019—20</span></div>
+          <div class="role"><span>QA Engineer — Ads</span><span class="d">2017—19</span></div>
+        </div>
+        <ul>
+          <li>Owned the mobile test platform serving 3,000+ engineers.</li>
+          <li>Led Swift adoption through Bazel interop across 10M+ lines of iOS code.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__inner c4">
+      <div class="hd"><span>04 — Epic</span><span>2016—17</span></div>
+      <div class="bd">
+        <div class="org">Epic Systems</div>
+        <div class="roles"><div class="role"><span>Technical Services Analyst</span><span class="d">2016—17</span></div></div>
+        <ul>
+          <li>Supported five hospital organizations on Epic Resolute revenue applications.</li>
+          <li>Wrote server extensions in MUMPS for 40+ custom insurance providers.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__inner c5">
+      <div class="hd"><span>05 — Wegmans</span><span>2013—16</span></div>
+      <div class="bd">
+        <div class="org">Wegmans</div>
+        <div class="roles"><div class="role"><span>Quality Assurance Intern</span><span class="d">2013—16</span></div></div>
+        <ul>
+          <li>Certified software for internal and customer-facing projects.</li>
+          <li>Created automated test suites for mobile applications.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__inner c6">
+      <div class="hd"><span>06 — RIT</span><span>2011—15</span></div>
+      <div class="bd">
+        <div class="org">Rochester Institute of Technology</div>
+        <div class="roles"><div class="role"><span>B.S., Information Systems &amp; Marketing</span><span class="d">2015</span></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="wrap after">
+  <h2>Elsewhere</h2>
+  <p>Content after the deck flows normally — the stack simply ends. Nothing has to “land” on the last card, which is what the old <code>padding-bottom: 0</code> comment was working around.</p>
+</div>
+</body>
+</html>
