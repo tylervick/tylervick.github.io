@@ -1,220 +1,181 @@
-/* tylervick.com — hand-written, no build step */
+  :root {
+    --paper:#f4f1ea; --ink:#161412; --muted:#7d7365;
+    --acc:#ff4f00;
+    --mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --gutter: clamp(1rem,5vw,2.5rem);
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--paper); color:var(--ink); font-family:var(--mono);
+         -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:48rem; margin:0 auto; padding-inline:var(--gutter); }
 
-:root {
-    --bg: #fbfbf9;
-    --ink: #1a1a18;
-    --muted: #8d8d86;
-    --accent: #ff4f00;
-    --hairline: #e4e4de;
+  .intro { padding:9svh 0 7svh; }
+  .kick { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--acc); }
+  h1 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,5.5vw,2.7rem);
+       line-height:1.07; letter-spacing:-.015em; margin:.9rem 0 0; }
+  .sub { color:var(--muted); font-size:12.5px; line-height:1.65; margin-top:1rem; max-width:31rem; }
 
-    /* Brand colors — spine fills and index tints (light) */
-    --c-twds: hsl(235, 70%, 42%);
-    --c-snap: #fffc00;
-    --c-epic: #ba122b;
-    --c-weg: #ea8d1a;
-    --c-rit: #f76902;
-    --t-twds: hsl(235, 70%, 42%);
-    --t-snap: #9c8f00;
-    --t-epic: #ba122b;
-    --t-weg: #bf6e07;
-    --t-rit: #d35500;
-}
+  /* ================= THE DECK =================
+     Two elements, two jobs:
+       .card          → sticky wrapper. Its HEIGHT is the scroll travel.
+                        Its PADDING-TOP is the cascade offset.
+       .card__inner   → the visible pass. Its height is purely visual.
+     The release alignment below reads no viewport units at all. The only
+     viewport-dependent value is the fit guard, and it uses svh (static) so
+     nothing re-lays-out mid-scroll.                                       */
+  .deck {
+    --peek: clamp(1.9rem, 4.6vw, 2.9rem);
+    --lead: 6svh;
+    --gap: 0.75rem;      /* breathing room between passes in normal flow */
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg: #0f0f0e;
-        --ink: #dcdcd4;
-        --muted: #73736b;
-        --accent: #ff5e2a;
-        --hairline: #262622;
+    /* FIT GUARD.
+       The assembled deck — lead + every peek + the front pass — has to fit on
+       one screen. If it doesn't, the front pass hangs off the bottom and the
+       shared release line lands below the fold, which reads as the deck
+       lurching when you scroll back up.
 
-        --c-twds: hsl(235, 65%, 55%);
-        --t-twds: hsl(235, 70%, 70%);
-        --t-snap: #e8dc00;
-        --t-epic: #e8516b;
-        --t-weg: #eda23f;
-        --t-rit: #ff8b3d;
-    }
-}
+       Landscape phones are the pinch: --peek scales with vw (which grows)
+       while the viewport height shrinks, so the stack gets taller exactly as
+       the room for it disappears.
 
-* {
-    box-sizing: border-box;
-}
+       USE svh, NEVER dvh. dvh re-resolves live as Safari's toolbar collapses,
+       so every pass resizes mid-scroll — the height visibly changes under you
+       on the way back up. svh is the SMALL viewport (toolbar showing): it is
+       static, costs no layout recalculation, and sizing to it means the deck
+       fits in the worst case and then never moves. The cost is a little
+       unused paper once the toolbar hides, which is the right trade.
 
-html {
-    background: var(--bg);
-    color: var(--ink);
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><path d="M4 1.5v15.5l4.3-3.8 2.5 5.9 2.7-1.1-2.5-5.8h5.8z" fill="%23ff4f00" stroke="white" stroke-width="1"/></svg>') 4 2, auto;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 13.5px;
-    line-height: 1.7;
-    -webkit-text-size-adjust: 100%;
-}
+       This is a FIT constraint and is deliberately NOT the release
+       alignment — that lives in .card padding-bottom and needs no viewport
+       math. Conflating the two is what made the original hard to tune. */
+    --stack: calc(var(--lead) + (var(--count) - 1) * var(--peek));
+    --card-h: min(58svh, calc(100svh - var(--stack) - 5svh));
+  }
 
-::selection {
-    background: var(--accent);
-    color: #fff;
-}
+  .card {
+    position: sticky;
+    /* incremental top = the cascade. Each pass parks --peek below the one
+       before it, and the browser does the pinning. */
+    top: calc(var(--lead) + var(--i) * var(--peek));
 
-/* Brand spine — five colors down the left edge of the viewport */
+    /* ALIGNED RELEASE.
+       A sticky box lets go when its BOTTOM meets the containing block's
+       bottom. Staggered tops + equal heights = staggered bottoms, so the
+       front pass hits that limit first and slides up over the stack while
+       the rest are still pinned. Adding (count-1-i) peeks of transparent
+       padding puts every wrapper's bottom on one line, so the deck releases
+       as a single unit.
 
-.spine {
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    left: 0;
-    position: fixed;
-    top: 0;
-    width: 7px;
-    z-index: 1;
-}
+       This is why --count has to exist: simultaneous release is a property
+       of the whole deck, not of one card. The cost is that earlier passes
+       get more scroll travel than later ones.
 
-.spine i {
-    flex: 1;
-}
+       Crucially the padding is on the WRAPPER, so .card__inner keeps one
+       constant height — every pass stays the same visible size. That part
+       was impossible while the card itself was the sticky element. */
+    padding-bottom: calc(var(--gap) + (var(--count) - 1 - var(--i)) * var(--peek));
+  }
 
-.spine .s1 { background: var(--c-twds); }
-.spine .s2 { background: var(--c-snap); }
-.spine .s3 { background: var(--c-epic); }
-.spine .s4 { background: var(--c-weg); }
-.spine .s5 { background: var(--c-rit); }
+  /* RUNWAY — and it must be a real ELEMENT, not padding on .deck.
+     A sticky box is caged by its containing block's CONTENT box, and padding
+     sits outside that, so padding-bottom grows the deck without granting the
+     last pass any travel. Without this the final pass can never pin: its
+     bottom edge IS the deck's bottom edge, so it scrolls up over the whole
+     stack instead. This empty child extends the content box and gives it the
+     same front-of-deck time every other pass gets from its next sibling. */
+  .runway { height: 30svh; }
 
-body {
-    margin: 0 auto;
-    max-width: 40rem;
-    padding: clamp(3rem, 14vh, 7rem) 1.5rem 4rem;
-    padding-left: max(1.5rem, env(safe-area-inset-left));
-    padding-right: max(1.5rem, env(safe-area-inset-right));
-}
+  .card__inner {
+    border-radius:24px; background:var(--bg); color:var(--fg); overflow:hidden;
+    /* no padding-top: the header strip below IS the peek band, and owns that
+       space itself so its contents can be centred in it. */
+    padding: 0 clamp(1.3rem,4vw,2.1rem) clamp(1.5rem,4vw,2.1rem);
+    /* EXACT height, not min-height. The aligned release depends on every
+       wrapper being the same height; min-height is only a floor, so the
+       content-heavy passes (Disney, Snap) grew past it, sat lower, and broke
+       loose from the deck early. Fixed height keeps the release honest —
+       which means content must be trimmed to fit on short viewports below. */
+    height: var(--card-h);
+    display:flex; flex-direction:column;
+    box-shadow: 0 1px 0 rgba(255,255,255,.14) inset,
+                0 26px 50px -30px rgba(0,0,0,.6);
+    transform-origin: 50% 0%;
+    /* depth cue as the pass gets buried. Progressive enhancement — if the
+       engine lacks scroll-driven animations, the deck still cascades. */
+    animation: bury linear both;
+    animation-timeline: view();
+    animation-range: exit-crossing 0% exit-crossing 100%;
+  }
+  @keyframes bury { to { transform: scale(.94); filter: brightness(.82); } }
 
-a {
-    color: var(--ink);
-    text-decoration: underline;
-    text-decoration-color: var(--muted);
-    text-underline-offset: 0.25em;
-    transition: color 0.15s ease, text-decoration-color 0.15s ease;
-}
+  /* The header strip is exactly one peek tall and centres its own contents,
+     so a buried pass shows its label optically centred at ANY viewport.
+     Previously the strip's height was an accident of padding + line-height:
+     it happened to look even at desktop's 46px peek and went bottom-tight at
+     the 30px peek the clamp floors to on phones. */
+  .hd { min-height: var(--peek); display:flex; align-items:center;
+        justify-content:space-between;
+        font-size:10px; letter-spacing:.15em; text-transform:uppercase; opacity:.72; }
+  .bd { margin-top:auto; }
+  .org { font-family:var(--serif); font-size:clamp(1.35rem,4vw,1.95rem); font-weight:500;
+         line-height:1.1; letter-spacing:-.012em; }
+  /* rules tint from the card's own foreground, so they read on light brands too */
+  .roles { margin-top:.95rem; padding-top:.75rem;
+           border-top:1px solid color-mix(in srgb, currentColor 20%, transparent); }
+  .role { display:flex; justify-content:space-between; gap:1rem; font-size:11px;
+          line-height:1.6; padding:.14rem 0; }
+  .role .d { opacity:.52; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  ul { list-style:none; margin:.9rem 0 0; padding:0; }
+  li { font-family:var(--serif); font-size:.87rem; line-height:1.58; opacity:.9;
+       padding-left:1rem; position:relative; margin-top:.42rem; }
+  li::before { content:"—"; position:absolute; left:0; opacity:.45; }
 
-a:hover {
-    color: var(--accent);
-    text-decoration-color: var(--accent);
-}
+  /* Brand colours, carried over from the current site's spine palette in
+     style.css. Light brands (Snap, Wegmans, RIT) flip to dark text rather
+     than being darkened away from the real brand colour. */
+  /* Function Health's own --orange token, read from functionhealth.com.
+     White on it measures 4.81:1 — clears AA for body text. */
+  .b-fn   { --bg:#b05a36;          --fg:#fff; }
+  .b-twds { --bg:hsl(235,64%,38%); --fg:#fff; }
+  .b-kagi { --bg:#2f3437;          --fg:#fff; }   /* not in the original palette */
+  .b-snap { --bg:#fffc00;          --fg:#161412; }
+  .b-epic { --bg:#ba122b;          --fg:#fff; }
+  .b-weg  { --bg:#ea8d1a;          --fg:#2a1c08; }
+  .b-rit  { --bg:#f76902;          --fg:#2a1204; }
 
-/* Entrance: one staggered reveal, then stillness */
+  .after { padding:9svh 0 10svh; }
+  .after h2 { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
+              color:var(--muted); font-weight:400; }
+  .after p { font-family:var(--serif); font-size:1rem; line-height:1.6; margin-top:1rem; max-width:30rem; }
 
-header, section, footer {
-    animation: rise 0.5s ease both;
-}
+  /* Short viewports (landscape phones). Shrinks the cascade so the front pass
+     keeps usable room, and trims content to what genuinely fits — the pass
+     height is FIXED here (the aligned release needs equal heights), so
+     anything that doesn't fit would be clipped rather than reflowed.
+     Identity survives first: org, roles and dates always stay.
 
-section:nth-of-type(1) { animation-delay: 0.08s; }
-section:nth-of-type(2) { animation-delay: 0.16s; }
-footer { animation-delay: 0.24s; }
+     NOTE: this block must come AFTER the base rules it overrides. At equal
+     specificity source order decides, and sitting earlier in the sheet is
+     exactly why an earlier version of it silently did nothing. */
+  @media (max-height: 600px) {
+    .deck { --peek: 1.35rem; --lead: 3svh; }
+    .card__inner li:nth-child(n+2) { display: none; }
+    .org { font-size: 1.15rem; }
+    li { font-size: .8rem; line-height: 1.45; }
+    /* Snap carries three role lines — the tallest pass, so it sets the floor */
+    .roles { margin-top: .6rem; padding-top: .5rem; }
+    .role { font-size: 10.5px; line-height: 1.45; padding: .06rem 0; }
+  }
 
-@keyframes rise {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: none; }
-}
+  @media (prefers-reduced-motion: reduce) {
+    .card__inner { animation:none }
+    .card { position:static; padding-top:0; padding-bottom:1rem }
+  }
 
-@media (prefers-reduced-motion: reduce) {
-    header, section, footer { animation: none; }
-}
-
-/* Header */
-
-h1 {
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    margin: 0;
-    text-transform: uppercase;
-}
-
-.role {
-    color: var(--muted);
-}
-
-.intro {
-    color: var(--muted);
-    margin: 1.5rem 0 0;
-}
-
-.intro b {
-    color: var(--ink);
-    font-weight: 400;
-}
-
-/* Sections */
-
-h2 {
-    border-bottom: 1px solid var(--hairline);
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0.15em;
-    margin: 3.5rem 0 0;
-    padding-bottom: 0.5rem;
-    text-transform: uppercase;
-}
-
-.timeline {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.timeline li {
-    border-bottom: 1px solid var(--hairline);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 1rem;
-    padding: 0.65rem 0;
-}
-
-.idx {
-    color: var(--accent);
-    flex: 0 0 2.2rem;
-}
-
-.b-twds .idx { color: var(--t-twds); }
-.b-snap .idx { color: var(--t-snap); }
-.b-epic .idx { color: var(--t-epic); }
-.b-weg .idx { color: var(--t-weg); }
-.b-rit .idx { color: var(--t-rit); }
-
-.who {
-    flex: 1 1 14rem;
-}
-
-.detail {
-    color: var(--muted);
-}
-
-.dates {
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-    margin-left: auto;
-    white-space: nowrap;
-}
-
-/* Footer */
-
-footer {
-    margin-top: 3.5rem;
-}
-
-.elsewhere {
-    margin: 0;
-}
-
-.elsewhere a + a {
-    margin-left: 1rem;
-}
-
-.fine {
-    color: var(--muted);
-    margin: 3rem 0 0;
-}
-
-.fine .clock {
-    color: var(--accent);
-}
+  .elsewhere a { color: var(--ink); text-decoration: underline;
+                 text-decoration-color: #cfc6b6; text-underline-offset: .25em; }
+  .elsewhere a:hover { color: var(--acc); text-decoration-color: var(--acc); }
+  .elsewhere a + a { margin-left: 1rem; }
+  .fine { color: var(--muted); margin-top: 2.5rem; font-size: 11.5px; }
+  .fine .clock { color: var(--acc); }
