@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wallet stack — sticky pin (jitter diagnostic)</title>
+<style>
+  :root {
+    --accent: #ff4f00;
+    --ink: #161412;
+    --paper: #f4f1ea;
+    --peek: 60px;
+    --count: 5;
+    --top: 8vh;
+    /* Two knobs make the deck hold firm during the bottom bounce:
+
+       --runway: scrollable space AFTER the last card lands, added by the
+         .runway spacer below. Without it the last cards lock into their slots
+         exactly as you hit the page bottom, so they're never actually "stuck"
+         and they ride the bounce. The runway scrolls past behind the already-
+         stuck deck (it isn't visible at rest), buying the travel that pins
+         every card firmly before max scroll. More runway = more cards held.
+
+       --fill: how much viewport height the resting deck spans. The leftover
+         (~100vh - --fill) is the rest buffer below the deck AND the slack the
+         bounce can eat before the deck's bottom edge reaches the scroller end.
+         Lower = firmer + more paper below at rest; higher = fuller deck, less
+         slack. Needs --runway >= ~2 * (100vh - --fill) to stay firmly pinned.
+
+       Tune both on the phone. */
+    --runway: 34vh;
+    --fill: 86vh;
+    --pass-h: calc(var(--fill) - var(--top) - (var(--count) - 1) * var(--peek));
+    --gutter: clamp(1rem, 5vw, 4rem);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .intro {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 12vh var(--gutter) 7vh;
+  }
+  .intro h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+  .intro p {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #6b6358;
+    max-width: 32rem;
+  }
+  .kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  .stack {
+    position: relative;
+    padding-inline: var(--gutter);
+  }
+
+  /* scroll runway: invisible space after the deck so every card locks into
+     its slot well before max scroll. Sits inside .stack (the sticky cards'
+     containing block), so it extends how long they stay stuck. */
+  .runway { height: var(--runway); }
+
+  /* --- the pin, the native way ---
+     position: sticky is pinned by the compositor in lockstep with scroll, so
+     a stuck card is dead-steady — no scroll-timeline sampling, no per-frame
+     transform. Each card sticks at its own slot (--top + i*--peek), so they
+     stack downward exactly like the transform version. */
+  .pass {
+    position: sticky;
+    top: calc(var(--top) + var(--i) * var(--peek));
+    width: 100%;
+    max-width: 46rem;
+    margin-inline: auto;
+    height: var(--pass-h);
+    margin-bottom: 8vh;
+    border-radius: 28px;
+    padding: 1.05rem clamp(1.4rem, 4vw, 2.6rem) clamp(1.4rem, 4vw, 2.6rem);
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.12) inset,
+      0 24px 50px -24px rgba(0,0,0,0.45);
+  }
+  .pass:last-child { margin-bottom: 0; }
+
+  .pass:nth-child(1) { --i: 0; background: var(--accent); }
+  .pass:nth-child(2) { --i: 1; background: #1f1b17; }
+  .pass:nth-child(3) { --i: 2; background: #3a5a40; }
+  .pass:nth-child(4) { --i: 3; background: #2b2a4a; }
+  .pass:nth-child(5) { --i: 4; background: #7a3b2e; }
+
+  .pass-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .pass-body { margin-top: auto; }
+  .pass-body h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .pass-body p {
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    max-width: 30rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+  <header class="intro">
+    <p class="kicker">stacked passes · sticky pin (diagnostic)</p>
+    <h1>Same cascade, pinned with <code>position: sticky</code>.</h1>
+    <p>This is the jitter control. The pin is native sticky, so stuck cards are composited in lockstep with scroll — if the top cards are steady here near the bottom, the jitter in the native-overscroll version is the scroll-timeline transform, not layout or compositing. Trade-off: at the top and bottom edges the stuck cards do <em>not</em> ride the rubber-band the way the transform version does.</p>
+  </header>
+
+  <main class="stack">
+    <article class="pass">
+      <div class="pass-head"><span>01 — index</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>You read each card on the way up.</h2>
+        <p>Every pass is a full screenful and scrolls into view before it pins — so its content is visible, not just a peek.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>02 — writing</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Pinning with sticky.</h2>
+        <p>The compositor holds each stuck pass in its slot natively — no scroll-driven transform to fall out of sync on a phone.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>03 — work</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>Steady at the bottom?</h2>
+        <p>Scroll to the end and watch the top cards. If they hold dead-still here, sticky is the cure for the jitter.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>04 — notes</span><span>↓</span></div>
+      <div class="pass-body">
+        <h2>The trade-off.</h2>
+        <p>Sticky pins to the viewport, so the rubber-band at either edge no longer carries the stuck cards along — that elastic ride was the whole point of the transform version.</p>
+      </div>
+    </article>
+
+    <article class="pass">
+      <div class="pass-head"><span>05 — contact</span><span>●</span></div>
+      <div class="pass-body">
+        <h2>Feel them side by side.</h2>
+        <p>Open this and the native-overscroll version on your phone. Same resting deck — this one should not jitter.</p>
+      </div>
+    </article>
+
+    <div class="runway" aria-hidden="true"></div>
+  </main>
+</body>
+</html>
