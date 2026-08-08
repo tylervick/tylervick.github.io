@@ -161,12 +161,25 @@
      360x740, 320x601, 1280x720; round 2, tiers at 780px/340px: clipped at
      341-370px wide x 601-700px tall, including the common 360x640 phone).
 
-     Instead of chasing the 2D boundary to the pixel, this uses ONE
-     threshold with large margin on BOTH axes:
+     Instead of chasing the 2D boundary to the pixel, this uses wide-margin
+     thresholds on BOTH axes:
        - BASE: 1 bullet, unconditionally, no media query needed. Measured to
-         fit at 320x568 — the smallest viewport in the measured set — and by
-         monotonicity (more width or height only ever creates more room,
-         never less) that bounds every larger viewport too.
+         fit at 320x568 with 70px to spare.
+         READ THIS BEFORE TRUSTING THAT NUMBER: it does NOT make 1 bullet
+         safe everywhere. The safe region is bounded on both axes, and the
+         monotonicity argument (more room can only help) holds only inside
+         the upward-closed quadrant from that anchor — viewports at least
+         320 wide AND at least 568 tall. It says nothing about
+         wider-but-shorter or taller-but-narrower, and both were measured
+         clipping: 568x320 (an iPhone SE rotated) ran 41px over, 240x700
+         ran 49px over. An earlier version of this comment claimed the
+         anchor bounded "every larger viewport" and shipped that gap.
+         Outside the quadrant it is the BULLET FLOOR rule below, not this
+         one, that keeps the card honest — the base tier is not
+         self-sufficient.
+       - FLOOR: 0 bullets below 560px tall, or at/below 300px wide. See the
+         BULLET FLOOR block further down this sheet for its measured
+         margins. That rule, not this one, is what covers short viewports.
        - ENHANCEMENT: 3 bullets at (min-width:800px) and (min-height:800px).
          .wrap caps content width at 768px, so at viewport width >= ~780px
          text wraps identically no matter how much wider it gets — width
@@ -195,10 +208,13 @@
      pass height is FIXED here (the aligned release needs equal heights), so
      anything that doesn't fit would be clipped rather than reflowed.
      Identity survives first: org, roles and dates always stay. Bullet count
-     itself is NOT this block's concern any more — the unconditional
-     HIGHLIGHT CAP rule above already holds every viewport to 1 bullet
-     unless the (min-width:800px) and (min-height:800px) enhancement lifts
-     it, and short-height phones never clear that height threshold.
+     itself is NOT this block's concern — it is set elsewhere, and this
+     block's 0-600px height range is split between two of those rules: the
+     BULLET FLOOR below shows 0 bullets from 0 to 560px tall, and the
+     remaining 561-600px band keeps the base tier's 1 bullet, measured to
+     fit (13px spare at 320x601, the tightest point of that band). The
+     (min-width:800px) and (min-height:800px) enhancement can never apply
+     here — nothing this block matches is 800px tall.
 
      NOTE: this block must come AFTER the base rules it overrides. At equal
      specificity source order decides, and sitting earlier in the sheet is
@@ -217,6 +233,54 @@
      source order (equal-specificity selector; last declaration wins). */
   @media (min-width: 800px) and (min-height: 800px) {
     .card__inner li:nth-child(n+2) { display: list-item; }
+  }
+
+  /* BULLET FLOOR — categorical, not another tuned band.
+     Below this size the pass has no room for prose at all, so showing zero
+     bullets is the honest answer rather than a regression: the deck's rule
+     is that identity survives first — org, roles and dates always stay.
+     Hides the <ul> itself and not its <li>s, so the list's own .9rem
+     margin-top goes away with it.
+
+     HEIGHT 560px. The measured floor of the 1-bullet base tier — the
+     tallest viewport at which Snap Inc. (three role lines plus a bullet in
+     the shortest card, always the first to clip) still overflows — is
+     ~447px at 320 wide and ~479px at 301 wide. 560 clears those by 81-113px.
+     It is also not squeezed between two device classes: mainstream portrait
+     phones start at 568px tall and landscape phones top out around 430px,
+     so 560 sits in the empty gap between them, not on an edge.
+
+     WIDTH 300px. Height alone does not close the gap. At 240-280px wide the
+     base tier clips at heights all the way up to ~780px (240x620 measured
+     95px over, 240x750 20px over), because narrow width wraps Snap's single
+     bullet onto five or six lines faster than svh grows the box. 300px sits
+     below the 320px floor every mainstream mobile browser reports, so no
+     real device loses a bullet to this half — it guards foldable cover
+     screens and hand-set widths, and by construction it cannot touch the
+     320x568 anchor the base tier is calibrated on.
+
+     The comma is an OR: either axis being under its own threshold is
+     enough. Placed after the rules above per this sheet's source-order
+     convention, though unlike them it does not depend on it — it targets
+     the <ul> while they target <li>, so no equal-specificity race exists
+     and display:none on the ancestor wins from anywhere.
+
+     KNOWN RESIDUAL, deliberately not chased: at roughly 320x310 and below
+     (measured: 240x300 clips 37px, 320x300 clips 6px, 320x320 fits with
+     12px spare) the card overflows with ZERO bullets showing. That is not
+     a prose problem and no bullet rule can reach it — what does not fit is
+     the identity itself, because --card-h collapses to ~146px once the
+     seven-pass peek stack and the fit guard have taken their share, while
+     a long org name like "Rochester Institute of Technology" wraps to
+     several lines. Shrinking --peek does not rescue it either: dropping it
+     from 1.35rem to 0.8rem, a 41% cut, only just reaches zero margin at
+     240x300. Closing it for real needs a structural change — fewer
+     simultaneous passes, or truncating the org — not a threshold. No
+     browser reports a viewport that small (320px is the mainstream floor
+     on the width axis and no device is 300px tall), so it is documented
+     rather than fixed. */
+  @media (max-height: 560px), (max-width: 300px) {
+    .card__inner ul { display: none; }
   }
 
   @media (prefers-reduced-motion: reduce) {
