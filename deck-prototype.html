@@ -17,7 +17,7 @@
          -webkit-font-smoothing:antialiased; }
   .wrap { max-width:48rem; margin:0 auto; padding-inline:var(--gutter); }
 
-  .intro { padding:9vh 0 7vh; }
+  .intro { padding:9svh 0 7svh; }
   .kick { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--acc); }
   h1 { font-family:var(--serif); font-weight:500; font-size:clamp(1.8rem,5.5vw,2.7rem);
        line-height:1.07; letter-spacing:-.015em; margin:.9rem 0 0; }
@@ -28,12 +28,13 @@
        .card          → sticky wrapper. Its HEIGHT is the scroll travel.
                         Its PADDING-TOP is the cascade offset.
        .card__inner   → the visible pass. Its height is purely visual.
-     Nothing here reads the viewport, so there is no dvh math, no release
-     line to align, and no per-device tuning.                              */
+     The release alignment below reads no viewport units at all. The only
+     viewport-dependent value is the fit guard, and it uses svh (static) so
+     nothing re-lays-out mid-scroll.                                       */
   .deck {
     --count: 6;          /* deck size — genuinely needed, see release note */
     --peek: clamp(1.9rem, 4.6vw, 2.9rem);
-    --lead: 6vh;
+    --lead: 6svh;
     --gap: 0.75rem;      /* breathing room between passes in normal flow */
 
     /* FIT GUARD.
@@ -44,14 +45,20 @@
 
        Landscape phones are the pinch: --peek scales with vw (which grows)
        while the viewport height shrinks, so the stack gets taller exactly as
-       the room for it disappears. dvh tracks the real viewport through
-       browser-chrome collapse.
+       the room for it disappears.
+
+       USE svh, NEVER dvh. dvh re-resolves live as Safari's toolbar collapses,
+       so every pass resizes mid-scroll — the height visibly changes under you
+       on the way back up. svh is the SMALL viewport (toolbar showing): it is
+       static, costs no layout recalculation, and sizing to it means the deck
+       fits in the worst case and then never moves. The cost is a little
+       unused paper once the toolbar hides, which is the right trade.
 
        This is a FIT constraint and is deliberately NOT the release
        alignment — that lives in .card padding-bottom and needs no viewport
        math. Conflating the two is what made the original hard to tune. */
     --stack: calc(var(--lead) + (var(--count) - 1) * var(--peek));
-    --card-h: min(58vh, calc(100dvh - var(--stack) - 5vh));
+    --card-h: min(58svh, calc(100svh - var(--stack) - 5svh));
   }
 
   .card {
@@ -87,7 +94,7 @@
      bottom edge IS the deck's bottom edge, so it scrolls up over the whole
      stack instead. This empty child extends the content box and gives it the
      same front-of-deck time every other pass gets from its next sibling. */
-  .runway { height: 30vh; }
+  .runway { height: 30svh; }
 
   .card__inner {
     border-radius:24px; background:var(--bg); color:var(--fg); overflow:hidden;
@@ -144,7 +151,7 @@
   .b-weg  { --bg:#ea8d1a;          --fg:#2a1c08; }
   .b-rit  { --bg:#f76902;          --fg:#2a1204; }
 
-  .after { padding:9vh 0 10vh; }
+  .after { padding:9svh 0 10svh; }
   .after h2 { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
               color:var(--muted); font-weight:400; }
   .after p { font-family:var(--serif); font-size:1rem; line-height:1.6; margin-top:1rem; max-width:30rem; }
@@ -159,7 +166,7 @@
      specificity source order decides, and sitting earlier in the sheet is
      exactly why an earlier version of it silently did nothing. */
   @media (max-height: 600px) {
-    .deck { --peek: 1.35rem; --lead: 3vh; }
+    .deck { --peek: 1.35rem; --lead: 3svh; }
     .card__inner li:nth-child(n+2) { display: none; }
     .org { font-size: 1.15rem; }
     li { font-size: .8rem; line-height: 1.45; }
