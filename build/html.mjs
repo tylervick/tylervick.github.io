@@ -5,6 +5,15 @@ import { buildJsonLd } from './jsonld.mjs';
 const esc = s =>
   String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
+/**
+ * Neutralise HTML-significant characters inside a <script> body. Entity
+ * escaping (esc) is WRONG here — a browser does not decode entities inside
+ * <script>, so `&amp;` would reach the parser literally. These are JSON-safe
+ * \uXXXX escapes instead, so JSON.parse still recovers the exact original
+ * string and no substring can close the tag early.
+ */
+const jsonSafe = s => s.replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+
 const pad = n => String(n + 1).padStart(2, '0');
 
 // Cards in the scroll deck are FIXED-HEIGHT (`height: var(--card-h)` with
@@ -56,13 +65,21 @@ function renderCard(card, i) {
         .map(h => `          <li>${esc(h)}</li>`)
         .join('\n')}\n        </ul>`
     : '';
-  return `  <div class="card" style="--i:${i}">
+  // role="listitem" (not a real <li>) and <h3 class="org"> (not <div>) are how
+  // the deck gets list + heading semantics WITHOUT touching its CSS: style.css
+  // has unscoped `ul`/`li` rules for the highlight bullets, and a real <li>
+  // here would inherit `position: relative` from them and kill the sticky
+  // mechanic outright. The ARIA role conveys the same thing to a screen reader
+  // and is invisible to layout. `.org` keeps its class, so an <h3> renders
+  // byte-identically to the <div> it replaces (font-size/weight/line-height are
+  // all set explicitly and `* { margin:0 }` clears the UA heading margin).
+  return `  <div class="card" style="--i:${i}" role="listitem">
     <div class="card__inner ${brand.slug}">
       <div class="hd"><span>${pad(i)} — ${esc(brand.label)}</span><span>${esc(
         formatRange(card.startDate, card.endDate),
       )}</span></div>
       <div class="bd">
-        <div class="org">${esc(brand.display)}</div>
+        <h3 class="org">${esc(brand.display)}</h3>
         <div class="roles">
 ${roles}
         </div>${bullets}
@@ -95,12 +112,18 @@ export function renderPage(resume) {
   // block is embedded verbatim in a <script> tag. Neutralise them as
   // JSON-safe \uXXXX escapes (not HTML entities) so JSON.parse still
   // recovers the exact original string.
-  const graphJson = JSON.stringify(graph, null, 2)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026');
-  const { name, summary, profiles, email } = resume.basics;
-  const mail = `mailto:${email}`;
+  const graphJson = jsonSafe(JSON.stringify(graph, null, 2));
+  const { name, summary, profiles, email, location } = resume.basics;
+  // esc() on the address too: an email containing & would otherwise emit
+  // invalid HTML, and one containing a quote would break out of the attribute.
+  const mail = `mailto:${esc(email)}`;
+  // City, timezone and year are DERIVED, never typed twice. The JSON-LD reads
+  // basics.location for the same facts, so a hard-coded footer would drift from
+  // the structured data the moment the resume moved city — the two-sources-of-
+  // truth bug this generator exists to remove.
+  const { city, timezone } = location;
+  const year = new Date().getFullYear();
+  const tzJs = jsonSafe(JSON.stringify(timezone));
 
   return `<!doctype html>
 <html lang="en">
@@ -119,6 +142,7 @@ export function renderPage(resume) {
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<main>
 <div class="wrap">
   <header class="intro">
     <span class="kick">${esc(name)}</span>
@@ -127,26 +151,37 @@ export function renderPage(resume) {
   </header>
 </div>
 
-<div class="wrap deck" style="--count:${cards.length}">
+<!-- The work history needs a landmark and a name, but NOTHING here may alter
+     the deck's geometry: .deck is the sticky containing block, so the section
+     wraps it from OUTSIDE rather than adding a child, and the heading that
+     names it is .vh (position:absolute), contributing zero flow height. -->
+<section aria-labelledby="work-title">
+  <h2 id="work-title" class="vh">Work history</h2>
+
+  <div class="wrap deck" style="--count:${cards.length}" role="list">
 
 ${cards.map(renderCard).join('\n\n')}
 
-  <div class="runway" aria-hidden="true"></div>
+    <!-- Must stay a CHILD of .deck: it extends the deck's CONTENT box, which
+         is what gives the last sticky card its travel. -->
+    <div class="runway" aria-hidden="true"></div>
 
-</div>
+  </div>
+</section>
+</main>
 
-<div class="wrap after">
+<footer class="wrap after">
   <h2>Elsewhere</h2>
   <p class="elsewhere">
     <a href="${mail}">Email</a>
 ${profiles.map(p => `    <a href="${esc(p.url)}">${esc(p.network)}</a>`).join('\n')}
   </p>
-  <p class="fine">Berkeley <span class="clock" id="clock"></span> · 2026</p>
-</div>
+  <p class="fine">${esc(city)} <span class="clock" id="clock"></span> · ${year}</p>
+</footer>
 <script>
   const el = document.getElementById("clock");
   const tick = () => el.textContent = new Intl.DateTimeFormat("en-US",
-    { hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" }).format(new Date());
+    { hour: "numeric", minute: "2-digit", timeZone: ${tzJs} }).format(new Date());
   tick(); setInterval(tick, 30000);
 </script>
 <script type="application/ld+json">

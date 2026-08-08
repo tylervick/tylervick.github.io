@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<main>
 <div class="wrap">
   <header class="intro">
     <span class="kick">Tyler Vick</span>
@@ -23,13 +24,20 @@
   </header>
 </div>
 
-<div class="wrap deck" style="--count:7">
+<!-- The work history needs a landmark and a name, but NOTHING here may alter
+     the deck's geometry: .deck is the sticky containing block, so the section
+     wraps it from OUTSIDE rather than adding a child, and the heading that
+     names it is .vh (position:absolute), contributing zero flow height. -->
+<section aria-labelledby="work-title">
+  <h2 id="work-title" class="vh">Work history</h2>
 
-  <div class="card" style="--i:0">
+  <div class="wrap deck" style="--count:7" role="list">
+
+  <div class="card" style="--i:0" role="listitem">
     <div class="card__inner b-fn">
       <div class="hd"><span>01 — Function Health</span><span>2026—</span></div>
       <div class="bd">
-        <div class="org">Function Health</div>
+        <h3 class="org">Function Health</h3>
         <div class="roles">
         <div class="role"><span>Software Engineer</span><span class="d">2026—</span></div>
         </div>
@@ -37,11 +45,11 @@
     </div>
   </div>
 
-  <div class="card" style="--i:1">
+  <div class="card" style="--i:1" role="listitem">
     <div class="card__inner b-twds">
       <div class="hd"><span>02 — Disney</span><span>2024—26</span></div>
       <div class="bd">
-        <div class="org">The Walt Disney Studios</div>
+        <h3 class="org">The Walt Disney Studios</h3>
         <div class="roles">
         <div class="role"><span>Staff Software Engineer (Contract)</span><span class="d">2024—26</span></div>
         </div>
@@ -54,11 +62,11 @@
     </div>
   </div>
 
-  <div class="card" style="--i:2">
+  <div class="card" style="--i:2" role="listitem">
     <div class="card__inner b-kagi">
       <div class="hd"><span>03 — Kagi</span><span>2024</span></div>
       <div class="bd">
-        <div class="org">Kagi Inc.</div>
+        <h3 class="org">Kagi Inc.</h3>
         <div class="roles">
         <div class="role"><span>Browser Extension Support Engineer (Consultant)</span><span class="d">2024</span></div>
         </div>
@@ -71,11 +79,11 @@
     </div>
   </div>
 
-  <div class="card" style="--i:3">
+  <div class="card" style="--i:3" role="listitem">
     <div class="card__inner b-snap">
       <div class="hd"><span>04 — Snap</span><span>2017—24</span></div>
       <div class="bd">
-        <div class="org">Snap Inc.</div>
+        <h3 class="org">Snap Inc.</h3>
         <div class="roles">
         <div class="role"><span>Senior Software Engineer</span><span class="d">2020—24</span></div>
         <div class="role"><span>Quality Engineer</span><span class="d">2019—20</span></div>
@@ -90,11 +98,11 @@
     </div>
   </div>
 
-  <div class="card" style="--i:4">
+  <div class="card" style="--i:4" role="listitem">
     <div class="card__inner b-epic">
       <div class="hd"><span>05 — Epic</span><span>2016—17</span></div>
       <div class="bd">
-        <div class="org">Epic Systems</div>
+        <h3 class="org">Epic Systems</h3>
         <div class="roles">
         <div class="role"><span>Technical Services Analyst</span><span class="d">2016—17</span></div>
         </div>
@@ -107,11 +115,11 @@
     </div>
   </div>
 
-  <div class="card" style="--i:5">
+  <div class="card" style="--i:5" role="listitem">
     <div class="card__inner b-weg">
       <div class="hd"><span>06 — Wegmans</span><span>2013—16</span></div>
       <div class="bd">
-        <div class="org">Wegmans</div>
+        <h3 class="org">Wegmans</h3>
         <div class="roles">
         <div class="role"><span>Quality Assurance Intern</span><span class="d">2013—16</span></div>
         </div>
@@ -124,11 +132,11 @@
     </div>
   </div>
 
-  <div class="card" style="--i:6">
+  <div class="card" style="--i:6" role="listitem">
     <div class="card__inner b-rit">
       <div class="hd"><span>07 — RIT</span><span>2011—15</span></div>
       <div class="bd">
-        <div class="org">Rochester Institute of Technology</div>
+        <h3 class="org">Rochester Institute of Technology</h3>
         <div class="roles">
         <div class="role"><span>Bachelor of Science, Information Systems &amp; Marketing</span><span class="d">2011—15</span></div>
         </div>
@@ -136,11 +144,15 @@
     </div>
   </div>
 
-  <div class="runway" aria-hidden="true"></div>
+    <!-- Must stay a CHILD of .deck: it extends the deck's CONTENT box, which
+         is what gives the last sticky card its travel. -->
+    <div class="runway" aria-hidden="true"></div>
 
-</div>
+  </div>
+</section>
+</main>
 
-<div class="wrap after">
+<footer class="wrap after">
   <h2>Elsewhere</h2>
   <p class="elsewhere">
     <a href="mailto:tyler@tylervick.com">Email</a>
@@ -148,7 +160,7 @@
     <a href="https://github.com/tylervick">GitHub</a>
   </p>
   <p class="fine">Berkeley <span class="clock" id="clock"></span> · 2026</p>
-</div>
+</footer>
 <script>
   const el = document.getElementById("clock");
   const tick = () => el.textContent = new Intl.DateTimeFormat("en-US",

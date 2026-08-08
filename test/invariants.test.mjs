@@ -24,12 +24,51 @@ test('invariant 2: the pass has an exact height, not a floor', () => {
     'min-height is a floor — content-heavy passes grow past it and release early');
 });
 
-test('invariant 3: the runway is an element, not padding', () => {
-  assert.match(html, /class="runway"/, 'runway element missing from the deck');
+// Walk the DOM-ish text of index.html from the .deck opening tag to its
+// matching close, tracking <div> nesting depth. Returns the depth at which the
+// runway was found relative to the deck (1 = direct child), or -1 if it is not
+// inside the deck at all. Regex alone cannot express containment, which is
+// exactly how the old version of this test went vacuous.
+function runwayDepthInsideDeck(doc) {
+  const open = doc.search(/<div[^>]*\bclass="[^"]*\bdeck\b[^"]*"/);
+  if (open === -1) return -2; // no deck at all
+  const tags = /<div\b[^>]*>|<\/div>/g;
+  tags.lastIndex = open;
+  let depth = 0;
+  let found = -1;
+  let m;
+  while ((m = tags.exec(doc))) {
+    if (m[0] === '</div>') {
+      depth--;
+      if (depth === 0) break; // deck closed
+    } else {
+      if (/\bclass="[^"]*\brunway\b[^"]*"/.test(m[0]) && found === -1) found = depth;
+      depth++;
+    }
+  }
+  return found;
+}
+
+test('invariant 3: the runway is an element, not padding — and a CHILD of the deck', () => {
   assert.match(rules, /\.runway\s*\{[^}]*height:/, '.runway must have a height');
   const deck = rules.match(/\.deck\s*\{[^}]*\}/)?.[0] ?? '';
   assert.doesNotMatch(deck, /padding-bottom/,
     'padding sits outside the containing block’s content box and grants no sticky travel');
+
+  // CONTAINMENT, not existence. `assert.match(html, /class="runway"/)` only
+  // proved the string appears SOMEWHERE in the file — moving the runway out to
+  // a sibling of .deck kept the suite at 48/48 while reintroducing the bug
+  // this invariant exists to prevent: a sticky box is caged by its containing
+  // block's CONTENT box, so a runway outside .deck adds no travel and the last
+  // card scrolls up over the whole stack instead of pinning like the rest.
+  const depth = runwayDepthInsideDeck(html);
+  assert.notEqual(depth, -2, 'no .deck element found in index.html');
+  assert.notEqual(depth, -1,
+    'the runway is not inside .deck — outside the deck it extends nothing, and the ' +
+    'last sticky card gets no travel');
+  assert.equal(depth, 1,
+    'the runway must be a DIRECT child of .deck: nested inside another element it ' +
+    'extends that element’s content box, not the deck’s');
 });
 
 test('invariant 4: svh only, never dvh', () => {
