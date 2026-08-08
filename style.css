@@ -181,13 +181,23 @@
          BULLET FLOOR block further down this sheet for its measured
          margins. That rule, not this one, is what covers short viewports.
        - ENHANCEMENT: 3 bullets at (min-width:800px) and (min-height:800px).
-         .wrap caps content width at 768px, so at viewport width >= ~780px
-         text wraps identically no matter how much wider it gets — width
-         stops mattering. 800px sits comfortably inside that saturated
-         regime. On the height axis, 3 bullets were measured to fit at
-         728px and overflow at 720px; 800px leaves 72px of margin above
-         that measured boundary. Both halves of the AND are deep in
-         measured-safe territory, not tuned to an edge.
+         On the height axis, 3 bullets were measured to fit at 728px and
+         overflow at 720px; 800px leaves 72px of margin above that boundary.
+         On the width axis, beware a plausible-sounding claim an earlier
+         version of this comment made: that .wrap capping content at 768px
+         means "width stops mattering" past ~780px. Wrapping does saturate
+         there, but --peek does not — it is clamp(1.9rem, 4.6vw, 2.9rem),
+         so it keeps growing with vw until ~1009px, and a taller peek stack
+         means a SHORTER --card-h. Extra width is therefore mildly
+         NEGATIVE, not neutral: forcing 3 bullets at a fixed 610px height
+         overflows by 28px at 780 wide, 68px at 900, and 103px at 1200 and
+         at 1920 (identical, because --peek has hit its 2.9rem ceiling).
+         What actually makes this tier safe is not width-independence but
+         that it was measured across the whole width range at its own
+         height: at 800px tall the tightest card keeps 107px spare at 800
+         wide and 66px from 1009px wide out to 1920. Both halves of the AND
+         are in measured-safe territory; only the reason given for the
+         width half was wrong.
      A middle 2-bullet tier was considered but not added: the measured data
      shows the failure boundary itself is 2D (360x740 fits 2 bullets, but
      360x640 — same width — does not), so a 2-bullet threshold safe by ~50px
@@ -265,20 +275,45 @@
      the <ul> while they target <li>, so no equal-specificity race exists
      and display:none on the ancestor wins from anywhere.
 
-     KNOWN RESIDUAL, deliberately not chased: at roughly 320x310 and below
-     (measured: 240x300 clips 37px, 320x300 clips 6px, 320x320 fits with
-     12px spare) the card overflows with ZERO bullets showing. That is not
-     a prose problem and no bullet rule can reach it — what does not fit is
-     the identity itself, because --card-h collapses to ~146px once the
-     seven-pass peek stack and the fit guard have taken their share, while
-     a long org name like "Rochester Institute of Technology" wraps to
-     several lines. Shrinking --peek does not rescue it either: dropping it
-     from 1.35rem to 0.8rem, a 41% cut, only just reaches zero margin at
-     240x300. Closing it for real needs a structural change — fewer
-     simultaneous passes, or truncating the org — not a threshold. No
-     browser reports a viewport that small (320px is the mainstream floor
-     on the width axis and no device is 300px tall), so it is documented
-     rather than fixed. */
+     KNOWN RESIDUAL — an accepted accessibility limitation at extreme zoom.
+     Read this carefully; two earlier drafts of it got the shape wrong.
+
+     WHAT FAILS: below roughly 300px of viewport HEIGHT the card overflows
+     with ZERO bullets showing. No bullet rule can reach this — what does
+     not fit is the identity itself (org and role lines), so the clipping
+     is of the text this sheet elsewhere promises always survives.
+
+     IT IS A HEIGHT FLOOR, NOT A NARROW-VIEWPORT CORNER. Width does not
+     rescue it and barely moves it, verified out to 1920px: 1000x270 and
+     1920x270 both clip 26px, byte-identical, with --card-h at 119px in
+     both. The mechanism is this sheet's own: below max-height:600 the
+     block above swaps --peek and --lead to fixed rem/svh, so --card-h
+     becomes a function of height alone. What little width dependence
+     remains runs the WRONG way — .card__inner's padding grows with 4vw
+     until it clamps at 840px, so 640x270 clips 18px while 1000x270 clips
+     26px. Narrow is separately worse only because long org names wrap
+     more (320x270 clips 33px). Floor by measurement: ~299px at 1000+ wide
+     (1000x290 = -8.6px, 1000x300 = +0.4px), ~310px at 320 wide.
+
+     HOW IT IS REACHED: browser zoom, not tiny devices. 400% zoom is the
+     reference case for WCAG 2.1 SC 1.4.10 (Reflow) and is a few presses of
+     Cmd/Ctrl-plus away on an ordinary laptop. Measured:
+       1366x768  @ 400%  ->  341x192  ->  90px clipped (--card-h = 47px)
+       1280x1024 @ 400%  ->  320x256  ->  46px clipped
+       1920x1080 @ 400%  ->  480x270  ->  17px clipped
+     1366x768 is one of the most common laptop resolutions in use, so this
+     is reachable in practice. 200% zoom is clean with wide margins
+     (683x384 = +84px, 960x540 = +167px); only ~4x bites.
+
+     WHY IT IS ACCEPTED FOR NOW, AND WHAT IT COSTS: the page still renders,
+     scrolls and reads — the cost is org and role lines clipped by tens of
+     pixels inside the deck, not a blank or broken page. But it IS a real
+     SC 1.4.10 shortfall at 400%, and calling it unreachable (as an earlier
+     draft of this comment did, arguing from the 320px mobile width floor)
+     is simply false. Thresholds cannot fix it: shrinking --peek from
+     1.35rem to 0.8rem, a 41% cut, only just reaches zero margin. A real
+     fix is structural — fewer simultaneous passes at short heights, or a
+     non-deck fallback layout below ~300px tall. */
   @media (max-height: 560px), (max-width: 300px) {
     .card__inner ul { display: none; }
   }
