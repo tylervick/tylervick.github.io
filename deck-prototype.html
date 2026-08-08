@@ -35,6 +35,23 @@
     --peek: clamp(1.9rem, 4.6vw, 2.9rem);
     --lead: 6vh;
     --gap: 0.75rem;      /* breathing room between passes in normal flow */
+
+    /* FIT GUARD.
+       The assembled deck — lead + every peek + the front pass — has to fit on
+       one screen. If it doesn't, the front pass hangs off the bottom and the
+       shared release line lands below the fold, which reads as the deck
+       lurching when you scroll back up.
+
+       Landscape phones are the pinch: --peek scales with vw (which grows)
+       while the viewport height shrinks, so the stack gets taller exactly as
+       the room for it disappears. dvh tracks the real viewport through
+       browser-chrome collapse.
+
+       This is a FIT constraint and is deliberately NOT the release
+       alignment — that lives in .card padding-bottom and needs no viewport
+       math. Conflating the two is what made the original hard to tune. */
+    --stack: calc(var(--lead) + (var(--count) - 1) * var(--peek));
+    --card-h: min(58vh, calc(100dvh - var(--stack) - 5vh));
   }
 
   .card {
@@ -77,9 +94,12 @@
     /* no padding-top: the header strip below IS the peek band, and owns that
        space itself so its contents can be centred in it. */
     padding: 0 clamp(1.3rem,4vw,2.1rem) clamp(1.5rem,4vw,2.1rem);
-    /* purely visual — this is also the card's scroll travel, since the
-       wrapper takes its height from here. One number, one meaning. */
-    min-height: 58vh;
+    /* EXACT height, not min-height. The aligned release depends on every
+       wrapper being the same height; min-height is only a floor, so the
+       content-heavy passes (Disney, Snap) grew past it, sat lower, and broke
+       loose from the deck early. Fixed height keeps the release honest —
+       which means content must be trimmed to fit on short viewports below. */
+    height: var(--card-h);
     display:flex; flex-direction:column;
     box-shadow: 0 1px 0 rgba(255,255,255,.14) inset,
                 0 26px 50px -30px rgba(0,0,0,.6);
@@ -128,6 +148,25 @@
   .after h2 { font-size:10.5px; letter-spacing:.2em; text-transform:uppercase;
               color:var(--muted); font-weight:400; }
   .after p { font-family:var(--serif); font-size:1rem; line-height:1.6; margin-top:1rem; max-width:30rem; }
+
+  /* Short viewports (landscape phones). Shrinks the cascade so the front pass
+     keeps usable room, and trims content to what genuinely fits — the pass
+     height is FIXED here (the aligned release needs equal heights), so
+     anything that doesn't fit would be clipped rather than reflowed.
+     Identity survives first: org, roles and dates always stay.
+
+     NOTE: this block must come AFTER the base rules it overrides. At equal
+     specificity source order decides, and sitting earlier in the sheet is
+     exactly why an earlier version of it silently did nothing. */
+  @media (max-height: 600px) {
+    .deck { --peek: 1.35rem; --lead: 3vh; }
+    .card__inner li:nth-child(n+2) { display: none; }
+    .org { font-size: 1.15rem; }
+    li { font-size: .8rem; line-height: 1.45; }
+    /* Snap carries three role lines — the tallest pass, so it sets the floor */
+    .roles { margin-top: .6rem; padding-top: .5rem; }
+    .role { font-size: 10.5px; line-height: 1.45; padding: .06rem 0; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .card__inner { animation:none }
