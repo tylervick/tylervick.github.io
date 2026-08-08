@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Variant M — Brand spine down the left edge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+:root {
+    --bg:#fbfbf9; --ink:#1a1a18; --muted:#8d8d86; --accent:#ff4f00; --hairline:#e4e4de;
+    --c-twds:hsl(235,70%,42%); --t-twds:hsl(235,70%,42%);
+    --c-snap:#fffc00; --t-snap:#9c8f00;
+    --c-epic:#ba122b; --t-epic:#ba122b;
+    --c-weg:#ea8d1a; --t-weg:#bf6e07;
+    --c-rit:#f76902; --t-rit:#d35500;
+}
+@media (prefers-color-scheme: dark){ :root {
+    --bg:#0f0f0e; --ink:#dcdcd4; --muted:#73736b; --accent:#ff5e2a; --hairline:#262622;
+    --c-twds:hsl(235,65%,55%); --t-twds:hsl(235,70%,70%);
+    --t-snap:#e8dc00; --t-epic:#e8516b; --t-weg:#eda23f; --t-rit:#ff8b3d;
+} }
+*{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;line-height:1.7}
+::selection{background:var(--accent);color:#fff}
+body{margin:0 auto;max-width:40rem;padding:clamp(3rem,14vh,7rem) 1.5rem 4rem}
+.spine{bottom:0;display:flex;flex-direction:column;left:0;position:fixed;top:0;width:7px}
+.spine i{flex:1}
+.spine .s1{background:var(--c-twds)} .spine .s2{background:var(--c-snap)} .spine .s3{background:var(--c-epic)} .spine .s4{background:var(--c-weg)} .spine .s5{background:var(--c-rit)}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:.25em}
+a:hover{color:var(--accent);text-decoration-color:var(--accent)}
+h1{font-size:1rem;font-weight:600;letter-spacing:.04em;margin:0;text-transform:uppercase}
+.role{color:var(--muted)}
+.intro{color:var(--muted);margin:1.5rem 0 0}
+.intro b{color:var(--ink);font-weight:400}
+h2{border-bottom:1px solid var(--hairline);color:var(--muted);font-size:.75rem;font-weight:400;letter-spacing:.15em;margin:3.5rem 0 0;padding-bottom:.5rem;text-transform:uppercase}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{border-bottom:1px solid var(--hairline);display:flex;flex-wrap:wrap;gap:0 1rem;padding:.65rem 0}
+.idx{flex:0 0 2.2rem}
+.b-twds .idx{color:var(--t-twds)} .b-snap .idx{color:var(--t-snap)} .b-epic .idx{color:var(--t-epic)} .b-weg .idx{color:var(--t-weg)} .b-rit .idx{color:var(--t-rit)}
+.who{flex:1 1 14rem}
+.detail{color:var(--muted)}
+.dates{color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}
+footer{margin-top:3.5rem}
+.elsewhere{margin:0}
+.elsewhere a+a{margin-left:1rem}
+.fine{color:var(--muted);margin:3rem 0 0}
+.fine .clock{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="spine" aria-hidden="true"><i class="s1"></i><i class="s2"></i><i class="s3"></i><i class="s4"></i><i class="s5"></i></div>
+<header>
+    <h1>Tyler Vick <span class="role">/ Software Engineer</span></h1>
+    <p class="intro"><b>I make software easier to build, test, and ship.</b></p>
+</header>
+<main>
+    <section>
+        <h2>Work</h2>
+        <ul class="timeline">
+            <li class="b-twds"><span class="idx">01</span><span class="who">The Walt Disney Studios <span class="detail">— Studio Technology</span></span><span class="dates">2024–</span></li>
+            <li class="b-snap"><span class="idx">02</span><span class="who">Snap Inc. <span class="detail">— Test Strategy &amp; Tools</span></span><span class="dates">2017–2024</span></li>
+            <li class="b-epic"><span class="idx">03</span><span class="who">Epic Systems <span class="detail">— Claims &amp; Remittance</span></span><span class="dates">2016–2017</span></li>
+            <li class="b-weg"><span class="idx">04</span><span class="who">Wegmans <span class="detail">— QA Engineering</span></span><span class="dates">2013–2016</span></li>
+        </ul>
+    </section>
+    <section>
+        <h2>Education</h2>
+        <ul class="timeline">
+            <li class="b-rit"><span class="idx">05</span><span class="who">Rochester Institute of Technology <span class="detail">— B.S., MIS &amp; Marketing</span></span><span class="dates">2015</span></li>
+        </ul>
+    </section>
+</main>
+<footer>
+    <p class="elsewhere"><a href="#">Email</a> <a href="#">GitHub</a> <a href="#">LinkedIn</a></p>
+    <p class="fine">Los Angeles <span class="clock">9:41 AM</span> · 2026</p>
+</footer>
+</body>
+</html>

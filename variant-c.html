@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Variant C — Color confident</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+:root { --bg:#f4f1ea; --ink:#1c1a16; --muted:#88836f; --accent:#e8430f; }
+@media (prefers-color-scheme: dark){ :root { --bg:#131210; --ink:#e8e4da; --muted:#7e796a; --accent:#ff5a1f; } }
+*{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Helvetica Neue",sans-serif;font-size:15px;line-height:1.6}
+::selection{background:var(--ink);color:var(--bg)}
+body{border-top:7px solid var(--accent);margin:0}
+.wrap{margin:0 auto;max-width:36rem;padding:clamp(3rem,13vh,7rem) 1.5rem 4rem}
+a{color:var(--accent);text-decoration:underline;text-decoration-color:transparent;text-underline-offset:.2em;transition:text-decoration-color .15s}
+a:hover{text-decoration-color:var(--accent)}
+h1{color:var(--accent);font-size:clamp(2rem,7vw,2.8rem);font-weight:650;letter-spacing:-0.025em;line-height:1.05;margin:0}
+.role{color:var(--muted);margin:.6rem 0 0}
+.intro{font-size:1.15rem;margin:2.2rem 0 0}
+h2{color:var(--accent);font-size:.78rem;font-weight:600;letter-spacing:.18em;margin:3.5rem 0 1rem;text-transform:uppercase}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{align-items:baseline;display:flex;flex-wrap:wrap;gap:0 1rem;justify-content:space-between}
+.timeline li+li{margin-top:.7rem}
+.detail{color:var(--muted)}
+.dates{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+footer{margin-top:3.5rem}
+.elsewhere{margin:0}
+.elsewhere a+a{margin-left:.75rem}
+.fine{color:var(--muted);margin:3rem 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+    <h1>Tyler Vick</h1>
+    <p class="role">Software Engineer</p>
+    <p class="intro">I make software easier to build, test, and ship.</p>
+</header>
+<main>
+    <section>
+        <h2>Work</h2>
+        <ul class="timeline">
+            <li><span>The Walt Disney Studios <span class="detail">— Studio Technology</span></span><span class="dates">2024&thinsp;–</span></li>
+            <li><span>Snap Inc. <span class="detail">— Test Strategy &amp; Tools</span></span><span class="dates">2017&thinsp;–&thinsp;2024</span></li>
+            <li><span>Epic Systems <span class="detail">— Claims &amp; Remittance</span></span><span class="dates">2016&thinsp;–&thinsp;2017</span></li>
+            <li><span>Wegmans <span class="detail">— QA Engineering</span></span><span class="dates">2013&thinsp;–&thinsp;2016</span></li>
+        </ul>
+    </section>
+    <section>
+        <h2>Education</h2>
+        <ul class="timeline">
+            <li><span>Rochester Institute of Technology <span class="detail">— B.S., MIS &amp; Marketing</span></span><span class="dates">2015</span></li>
+        </ul>
+    </section>
+</main>
+<footer>
+    <p class="elsewhere"><a href="#">Email</a> <a href="#">GitHub</a> <a href="#">LinkedIn</a></p>
+    <p class="fine">Los Angeles · 9:41 PM · 2026</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Variant E — Brand chips (always-on, mobile-friendly)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+:root {
+    --bg:#fbfbf9; --ink:#1a1a18; --muted:#8d8d86; --accent:#ff4f00; --hairline:#e4e4de;
+    --c-twds:hsl(235,70%,42%); --c-snap:#fffc00; --c-epic:#ba122b; --c-weg:#ea8d1a; --c-rit:#f76902;
+}
+@media (prefers-color-scheme: dark){ :root {
+    --bg:#0f0f0e; --ink:#dcdcd4; --muted:#73736b; --accent:#ff5e2a; --hairline:#262622;
+    --c-twds:hsl(235,65%,62%);
+} }
+*{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;line-height:1.7}
+::selection{background:var(--accent);color:#fff}
+body{margin:0 auto;max-width:40rem;padding:clamp(3rem,14vh,7rem) 1.5rem 4rem}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:.25em}
+a:hover{color:var(--accent);text-decoration-color:var(--accent)}
+h1{font-size:1rem;font-weight:600;letter-spacing:.04em;margin:0;text-transform:uppercase}
+.role{color:var(--muted)}
+.intro{color:var(--muted);margin:1.5rem 0 0}
+.intro b{color:var(--ink);font-weight:400}
+h2{border-bottom:1px solid var(--hairline);color:var(--muted);font-size:.75rem;font-weight:400;letter-spacing:.15em;margin:3.5rem 0 0;padding-bottom:.5rem;text-transform:uppercase}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{border-bottom:1px solid var(--hairline);display:flex;flex-wrap:wrap;gap:0 1rem;padding:.65rem 0}
+.idx{color:var(--accent);flex:0 0 2.2rem}
+.who{flex:1 1 14rem}
+.who::before{background:var(--b,var(--muted));box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);content:"";display:inline-block;height:9px;margin-right:.6rem;width:9px}
+.b-twds{--b:var(--c-twds)} .b-snap{--b:var(--c-snap)} .b-epic{--b:var(--c-epic)} .b-weg{--b:var(--c-weg)} .b-rit{--b:var(--c-rit)}
+.detail{color:var(--muted)}
+.dates{color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}
+footer{margin-top:3.5rem}
+.elsewhere{margin:0}
+.elsewhere a+a{margin-left:1rem}
+.fine{color:var(--muted);margin:3rem 0 0}
+.fine .clock{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+    <h1>Tyler Vick <span class="role">/ Software Engineer</span></h1>
+    <p class="intro"><b>I make software easier to build, test, and ship.</b></p>
+</header>
+<main>
+    <section>
+        <h2>Work</h2>
+        <ul class="timeline">
+            <li class="b-twds"><span class="idx">01</span><span class="who">The Walt Disney Studios <span class="detail">— Studio Technology</span></span><span class="dates">2024–</span></li>
+            <li class="b-snap"><span class="idx">02</span><span class="who">Snap Inc. <span class="detail">— Test Strategy &amp; Tools</span></span><span class="dates">2017–2024</span></li>
+            <li class="b-epic"><span class="idx">03</span><span class="who">Epic Systems <span class="detail">— Claims &amp; Remittance</span></span><span class="dates">2016–2017</span></li>
+            <li class="b-weg"><span class="idx">04</span><span class="who">Wegmans <span class="detail">— QA Engineering</span></span><span class="dates">2013–2016</span></li>
+        </ul>
+    </section>
+    <section>
+        <h2>Education</h2>
+        <ul class="timeline">
+            <li class="b-rit"><span class="idx">05</span><span class="who">Rochester Institute of Technology <span class="detail">— B.S., MIS &amp; Marketing</span></span><span class="dates">2015</span></li>
+        </ul>
+    </section>
+</main>
+<footer>
+    <p class="elsewhere"><a href="#">Email</a> <a href="#">GitHub</a> <a href="#">LinkedIn</a></p>
+    <p class="fine">Los Angeles <span class="clock">9:41 AM</span> · 2026</p>
+</footer>
+</body>
+</html>
