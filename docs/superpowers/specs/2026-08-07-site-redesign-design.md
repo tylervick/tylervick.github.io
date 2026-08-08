@@ -12,10 +12,12 @@
 `resume.json` exists on the stale `resume` branch, disconnected from the site, and the
 two disagree:
 
-| Live site (`main`) | `resume.json` |
+| Live site (`main`) | Reality |
 | --- | --- |
-| 4 work entries | 7 roles across 6 employers |
+| 4 work entries | 8 roles across 7 employers |
 | Snap as one `2017–2024` block | 3 distinct roles |
+| — | **Function Health missing** (current role, from 2026-06) |
+| Disney shown as current | ended 2026-06 |
 | — | **Kagi Inc. missing entirely** |
 | "Studio Technology" | "Staff Software Engineer (Contract)" |
 | "QA Engineering" (Wegmans) | "Quality Assurance Intern" |
@@ -189,6 +191,7 @@ Brand palette carried over from the spine in `main`'s `style.css`:
 
 | Employer | Background | Foreground |
 | --- | --- | --- |
+| Function Health | `#b05a36` | white — their `--orange` token, 4.81:1 (AA) |
 | Disney | `hsl(235,64%,38%)` | white — darkened from the spine's `70%,42%` for contrast |
 | Kagi | `#2f3437` | white — **placeholder, not a brand colour** |
 | Snap | `#fffc00` | `#161412` |
@@ -207,30 +210,45 @@ Light brands flip to dark text rather than being darkened away from the real col
 - `prefers-reduced-motion`: the deck degrades to static flow, no sticky, no animation.
 - The `bury` depth cue uses `animation-timeline: view()` and is progressive enhancement.
 
-Verified with a full-page sweep every 25px at three form factors:
+Verified with a full-page sweep every 25px, at 7 cards:
 
-| | landscape 932×357 | portrait 500×789 | desktop 1440×757 |
-| --- | --- | --- | --- |
-| card overtakes | 0 | 0 | 0 |
-| clipped content | none | none | none |
-| assembled deck fits | 315 ≤ 357 | 698 ≤ 789 | 716 ≤ 757 |
-| distinct card heights during scroll | 1 | 1 | 1 |
+| | landscape 932×357 | desktop 1440×757 |
+| --- | --- | --- |
+| card overtakes | 0 | 0 |
+| pinned-bottom spread | 0.01px | 0.00px |
+| clipped content | none | none |
+| assembled deck fits | 339 ≤ 357 | 719 ≤ 757 |
+| distinct card heights during scroll | 1 (199px) | 1 (395px) |
+
+Adding the 7th card required no tuning: the fit guard absorbed the extra peek by
+shrinking every pass from 207px to 199px in landscape. That is the property to protect —
+deck size is data, not a layout parameter someone has to rebalance by hand.
 
 ## Content corrections
 
 To apply when `resume.json` becomes canonical:
 
-1. **Location → Berkeley, CA.** `resume.json` says Boise; `main` says San Francisco.
+1. **Add Function Health.** Software Engineer, from 2026-06, focused on developer
+   experience, infrastructure and platform. Current role — becomes the front card.
+   No highlights invented; the card carries the role and focus only until there is
+   real material to add.
+2. **Close out Disney.** `endDate: 2026-06`. It is no longer the current role.
+3. **Location → Berkeley, CA.** `resume.json` says Boise; `main` says San Francisco.
    Neither is right. The `America/Los_Angeles` clock is already correct.
-2. Per-role locations are historical and stay as-is, except the current Disney role.
-3. Disney, Kagi, Snap ×3, Epic, Wegmans, RIT all appear, grouped by employer.
-4. Education area is "Information Systems & Marketing", 2011–2015.
-5. `humans.txt` says "no build step" — update to stay honest once `build.mjs` exists.
+4. Per-role locations are historical and stay as-is.
+5. Function Health, Disney, Kagi, Snap ×3, Epic, Wegmans, RIT all appear, grouped by
+   employer — 8 roles, 7 cards.
+6. Education area is "Information Systems & Marketing", 2011–2015.
+7. `basics.summary` says "over 8 years"; it should be derived from the dates or reworded
+   so it cannot go stale again.
+8. `humans.txt` says "no build step" — update to stay honest once `build.mjs` exists.
 
 ## Open questions
 
 1. **Kagi's card colour.** `#2f3437` is a placeholder; Kagi had no colour in the original
-   spine palette.
+   spine palette. Function Health's was resolved by reading their published tokens
+   (`--orange: #B05A36`, `--midnight: #2A2B2F`, `--cream: #F5EEE1`); the same approach
+   would settle Kagi.
 2. **Wegmans → RIT run warm.** `#ea8d1a` and `#f76902` are adjacent and similar, so the
    bottom of the deck reads as three warm cards in a row. Faithful to the brands; may
    want RIT pushed to a darker secondary.

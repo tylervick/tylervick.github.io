@@ -32,7 +32,7 @@
      viewport-dependent value is the fit guard, and it uses svh (static) so
      nothing re-lays-out mid-scroll.                                       */
   .deck {
-    --count: 6;          /* deck size — genuinely needed, see release note */
+    --count: 7;          /* deck size — genuinely needed, see release note */
     --peek: clamp(1.9rem, 4.6vw, 2.9rem);
     --lead: 6svh;
     --gap: 0.75rem;      /* breathing room between passes in normal flow */
@@ -84,8 +84,12 @@
        was impossible while the card itself was the sticky element. */
     padding-bottom: calc(var(--gap) + (var(--count) - 1 - var(--i)) * var(--peek));
   }
+  /* NOTE: hand-maintained here only because this is a prototype. The generator
+     should emit style="--i:N" on each card so the deck size lives in one
+     place (resume.json) instead of two. */
   .card:nth-child(1){--i:0} .card:nth-child(2){--i:1} .card:nth-child(3){--i:2}
   .card:nth-child(4){--i:3} .card:nth-child(5){--i:4} .card:nth-child(6){--i:5}
+  .card:nth-child(7){--i:6}
 
   /* RUNWAY — and it must be a real ELEMENT, not padding on .deck.
      A sticky box is caged by its containing block's CONTENT box, and padding
@@ -144,6 +148,9 @@
   /* Brand colours, carried over from the current site's spine palette in
      style.css. Light brands (Snap, Wegmans, RIT) flip to dark text rather
      than being darkened away from the real brand colour. */
+  /* Function Health's own --orange token, read from functionhealth.com.
+     White on it measures 4.81:1 — clears AA for body text. */
+  .b-fn   { --bg:#b05a36;          --fg:#fff; }
   .b-twds { --bg:hsl(235,64%,38%); --fg:#fff; }
   .b-kagi { --bg:#2f3437;          --fg:#fff; }   /* not in the original palette */
   .b-snap { --bg:#fffc00;          --fg:#161412; }
@@ -193,8 +200,21 @@
 <div class="wrap deck">
 
   <div class="card">
+    <div class="card__inner b-fn">
+      <div class="hd"><span>01 — Function Health</span><span>2026—</span></div>
+      <div class="bd">
+        <div class="org">Function Health</div>
+        <div class="roles"><div class="role"><span>Software Engineer</span><span class="d">2026—</span></div></div>
+        <ul>
+          <li>Developer experience, infrastructure, and platform engineering.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card__inner b-twds">
-      <div class="hd"><span>01 — Disney</span><span>2024—</span></div>
+      <div class="hd"><span>02 — Disney</span><span>2024—26</span></div>
       <div class="bd">
         <div class="org">The Walt Disney Studios</div>
         <div class="roles"><div class="role"><span>Staff Software Engineer · Contract</span><span class="d">2024—</span></div></div>
@@ -208,7 +228,7 @@
 
   <div class="card">
     <div class="card__inner b-kagi">
-      <div class="hd"><span>02 — Kagi</span><span>2024</span></div>
+      <div class="hd"><span>03 — Kagi</span><span>2024</span></div>
       <div class="bd">
         <div class="org">Kagi Inc.</div>
         <div class="roles"><div class="role"><span>Browser Extension Engineer · Consultant</span><span class="d">Feb—May</span></div></div>
@@ -222,7 +242,7 @@
 
   <div class="card">
     <div class="card__inner b-snap">
-      <div class="hd"><span>03 — Snap</span><span>2017—24</span></div>
+      <div class="hd"><span>04 — Snap</span><span>2017—24</span></div>
       <div class="bd">
         <div class="org">Snap Inc.</div>
         <div class="roles">
@@ -240,7 +260,7 @@
 
   <div class="card">
     <div class="card__inner b-epic">
-      <div class="hd"><span>04 — Epic</span><span>2016—17</span></div>
+      <div class="hd"><span>05 — Epic</span><span>2016—17</span></div>
       <div class="bd">
         <div class="org">Epic Systems</div>
         <div class="roles"><div class="role"><span>Technical Services Analyst</span><span class="d">2016—17</span></div></div>
@@ -254,7 +274,7 @@
 
   <div class="card">
     <div class="card__inner b-weg">
-      <div class="hd"><span>05 — Wegmans</span><span>2013—16</span></div>
+      <div class="hd"><span>06 — Wegmans</span><span>2013—16</span></div>
       <div class="bd">
         <div class="org">Wegmans</div>
         <div class="roles"><div class="role"><span>Quality Assurance Intern</span><span class="d">2013—16</span></div></div>
@@ -268,7 +288,7 @@
 
   <div class="card">
     <div class="card__inner b-rit">
-      <div class="hd"><span>06 — RIT</span><span>2011—15</span></div>
+      <div class="hd"><span>07 — RIT</span><span>2011—15</span></div>
       <div class="bd">
         <div class="org">Rochester Institute of Technology</div>
         <div class="roles"><div class="role"><span>B.S., Information Systems &amp; Marketing</span><span class="d">2015</span></div></div>
