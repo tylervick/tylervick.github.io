@@ -13,11 +13,26 @@ const pad = n => String(n + 1).padStart(2, '0');
 // the same height. Nothing upstream caps how many highlights an employer
 // can accrue (groupByEmployer flat-maps highlights across every role), so
 // an uncapped list silently clips inside the box with no visual warning.
-// 3 was measured empirically in-browser as the largest count that fits
-// every card at the tightest binding viewport (desktop 1440x757, where the
-// card is shortest relative to its content — Snap Inc. at 14 highlights
-// still overflowed at a cap of 4). Do not raise this without re-measuring
-// at that viewport; do not "simplify" it away.
+//
+// 3 is a hard ceiling on whatever reaches the DOM — not, by itself, a
+// viewport-safety guarantee. An earlier version of this comment claimed
+// "3 fits every card" from a check at exactly two viewports (1440x757 and
+// 500x789); that was wrong. Whether N highlights fit is TWO-DIMENSIONAL:
+// --card-h is svh-based, so the box height tracks viewport HEIGHT only,
+// while how many lines each <li> wraps onto tracks viewport WIDTH — and
+// those two pressures peak at different viewports (a short-but-wide window
+// like 1280x720 clipped with a height-only fix; a narrow-but-tall phone
+// would clip a width-only one). Checking one viewport, or even a few, does
+// not prove the general case.
+//
+// The actual no-clip guarantee for real viewports comes from this cap
+// PLUS the "CLIP GUARD" media queries in style.css, which visually drop to
+// 2 and then 1 rendered bullet as width or height shrinks. See that
+// comment for the measured width x height matrix. If you change this
+// constant, or add highlights that render very differently in length,
+// re-measure with a width AND height matrix (scrollHeight - clientHeight
+// on every .card__inner, across viewports spanning both axes) — not by
+// eyeballing one window size — and update style.css's thresholds too.
 export const MAX_CARD_HIGHLIGHTS = 3;
 
 function renderRole(r) {

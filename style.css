@@ -168,6 +168,37 @@
     .role { font-size: 10.5px; line-height: 1.45; padding: .06rem 0; }
   }
 
+  /* CLIP GUARD — two more tiers on top of the max-height:600px one above.
+     .card__inner is fixed-height (see the EXACT height note above), and how
+     much of that box 3 highlights fill depends on TWO independent axes:
+     --card-h comes from svh, so it tracks viewport HEIGHT only; but how many
+     lines each <li> wraps onto tracks viewport WIDTH (narrower = more wrap).
+     Those two pressures don't peak at the same viewport, so no single
+     breakpoint on either axis alone covers both — a width query misses a
+     short-but-wide window (1280x720 clipped 6px with only a height query),
+     and a height query misses a narrow-but-tall phone.
+
+     Thresholds below are MEASURED (scrollHeight - clientHeight on every
+     .card__inner, generated index.html, in-browser), not derived:
+       - cap 3 (JS default) clips at 320x601 (199px), 320x700 (142px),
+         360x740 (79px), 375x667 (77px), 500x601 (49px), 700x601 (3px),
+         1280x720 (6px) — but is exactly 0px clear at 1440x900/1920x1080.
+       - dropping to 2 bullets below max-width:780px OR max-height:780px
+         (both conditions, since .wrap saturates at 768px so width stops
+         mattering above that) clears every case above except 320x601 (still
+         82px) and 320x700 (still 25px).
+       - dropping to 1 bullet below max-width:340px clears those too.
+     Re-measure with a width AND height matrix (not one viewport) before
+     changing either the cap in build/html.mjs or these thresholds — a
+     single-viewport check is exactly how the original cap-of-3 (measured
+     only at 1440x757 and 500x789) missed this. */
+  @media (max-width: 780px), (max-height: 780px) {
+    .card__inner li:nth-child(n+3) { display: none; }
+  }
+  @media (max-width: 340px) {
+    .card__inner li:nth-child(n+2) { display: none; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .card__inner { animation:none }
     .card { position:static; padding-top:0; padding-bottom:1rem }
