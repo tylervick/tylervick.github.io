@@ -7,6 +7,13 @@ import { renderPage, MAX_CARD_HIGHLIGHTS } from '../build/html.mjs';
 const resume = JSON.parse(readFileSync(new URL('../resume.json', import.meta.url)));
 const html = renderPage(resume);
 
+// DERIVED, never typed. The deck is one card per employer plus one per school,
+// so adding or removing a job changes this on its own. A literal here meant that
+// removing a single employer broke five unrelated assertions at once, which is
+// the same hand-maintained-count drift the brand-map test exists to catch.
+const EXPECTED_CARDS =
+  new Set(resume.work.map(w => w.name)).size + resume.education.length;
+
 test('renders a complete document', () => {
   assert.match(html, /^<!doctype html>/i);
   assert.match(html, /<\/html>\s*$/);
@@ -14,18 +21,21 @@ test('renders a complete document', () => {
 });
 
 test('deck declares its size inline, not in CSS', () => {
-  assert.match(html, /class="[^"]*\bdeck\b[^"]*"[^>]*style="--count:7"/);
+  assert.match(html, new RegExp(
+    `class="[^"]*\\bdeck\\b[^"]*"[^>]*style="--count:${EXPECTED_CARDS}"`));
 });
 
 test('each card carries its own index', () => {
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < EXPECTED_CARDS; i++) {
     assert.ok(html.includes(`style="--i:${i}"`), `missing --i:${i}`);
   }
+  assert.ok(!html.includes(`style="--i:${EXPECTED_CARDS}"`),
+    'an index beyond the card count was emitted');
 });
 
 test('renders one card per employer plus the school', () => {
   const cards = html.match(/class="card"/g) ?? [];
-  assert.equal(cards.length, 7);
+  assert.equal(cards.length, EXPECTED_CARDS);
 });
 
 test('Function Health leads the deck', () => {
@@ -105,7 +115,7 @@ test('the work history has landmark, heading and list semantics', () => {
   assert.match(html, /<footer class="wrap after">/, 'no contentinfo landmark');
 
   const orgs = html.match(/<h3 class="org">/g) ?? [];
-  assert.equal(orgs.length, 7, 'every employer/school name must be a real heading');
+  assert.equal(orgs.length, EXPECTED_CARDS, 'every employer/school name must be a real heading');
   assert.doesNotMatch(html, /<div class="org">/, 'employer names must not be plain divs');
 
   // Deck list semantics are ARIA, not <ul>/<li>: style.css has unscoped ul/li
@@ -115,7 +125,7 @@ test('the work history has landmark, heading and list semantics', () => {
   // and was wrong: `.card` outranks bare `li` on specificity, and retagging was
   // measured to leave the geometry identical). See build/html.mjs.
   assert.match(html, /class="wrap deck"[^>]*role="list"/, 'deck is not exposed as a list');
-  assert.equal((html.match(/role="listitem"/g) ?? []).length, 7);
+  assert.equal((html.match(/role="listitem"/g) ?? []).length, EXPECTED_CARDS);
 });
 
 test('the footer city, timezone and year are derived from resume.json', () => {

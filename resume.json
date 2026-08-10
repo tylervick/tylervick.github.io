@@ -62,21 +62,6 @@
       "location": "Boise, ID - Remote"
     },
     {
-      "name": "Kagi Inc.",
-      "position": "Browser Extension Support Engineer (Consultant)",
-      "url": "https://kagi.com/",
-      "startDate": "2024-02",
-      "endDate": "2024-05",
-      "summary": "Implemented native WebExtension APIs for Kagi's web browser, Orion.",
-      "highlights": [
-        "Shipped WebExtensions support for Kagi's WebKit-based browser, Orion.",
-        "Implemented over 70% of manifest v2 and v3 APIs, unlocking feature parity for popular browser extensions.", 
-        "Developed the first iOS browser to support WebExtensions with one-click installation from the Chrome and Firefox extension stores.",
-        "Designed automated testing for verification of the top 100 most popular extensions on Chrome Web Store."
-      ],
-      "location": "Boise, ID - Remote"
-    },
-    {
       "name": "Snap Inc.",
       "position": "Senior Software Engineer",
       "url": "https://www.snap.com",

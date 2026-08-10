@@ -30,7 +30,7 @@ test('formatRange: same-year role shows one year', () => {
 const WORK = [
   { name: 'Snap Inc.', position: 'QA Engineer', startDate: '2017-06', endDate: '2019-05', highlights: ['c'] },
   { name: 'Acme Corp.', position: 'Long Stint', startDate: '2010-01', endDate: '2015-01' },
-  { name: 'Kagi Inc.', position: 'Browser Extension Support Engineer', startDate: '2024-02', endDate: '2024-05' },
+  { name: 'Brief Stint Ltd.', position: 'Consultant', startDate: '2024-02', endDate: '2024-05' },
   { name: 'Snap Inc.', position: 'Senior Software Engineer', startDate: '2020-08', endDate: '2024-02', highlights: ['b'] },
   { name: 'Function Health', position: 'Software Engineer', startDate: '2026-06' },
   { name: 'Acme Corp.', position: 'Rotation Lead', startDate: '2012-01', endDate: '2013-01' },
@@ -41,7 +41,7 @@ const WORK = [
 test('groupByEmployer: one group per employer', () => {
   const g = groupByEmployer(WORK);
   assert.deepEqual(g.map(x => x.name), [
-    'Function Health', 'The Walt Disney Studios', 'Kagi Inc.', 'Snap Inc.', 'Acme Corp.',
+    'Function Health', 'The Walt Disney Studios', 'Brief Stint Ltd.', 'Snap Inc.', 'Acme Corp.',
   ]);
 });
 

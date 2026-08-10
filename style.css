@@ -148,7 +148,6 @@
      White on it measures 4.81:1 — clears AA for body text. */
   .b-fn   { --bg:#b05a36;          --fg:#fff; }
   .b-twds { --bg:hsl(235,64%,38%); --fg:#fff; }
-  .b-kagi { --bg:#2f3437;          --fg:#fff; }   /* not in the original palette */
   .b-snap { --bg:#fffc00;          --fg:#161412; }
   .b-epic { --bg:#ba122b;          --fg:#fff; }
   .b-weg  { --bg:#ea8d1a;          --fg:#2a1c08; }

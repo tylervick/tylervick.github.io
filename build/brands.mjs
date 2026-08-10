@@ -8,7 +8,6 @@
 export const BRANDS = {
   'Function Health': { slug: 'b-fn', label: 'Function Health', display: 'Function Health' },
   'The Walt Disney Studios': { slug: 'b-twds', label: 'Disney', display: 'The Walt Disney Studios' },
-  'Kagi Inc.': { slug: 'b-kagi', label: 'Kagi', display: 'Kagi Inc.' },
   'Snap Inc.': { slug: 'b-snap', label: 'Snap', display: 'Snap Inc.' },
   'Epic Systems Corporation': { slug: 'b-epic', label: 'Epic', display: 'Epic Systems' },
   'Wegmans Food Markets, Inc.': { slug: 'b-weg', label: 'Wegmans', display: 'Wegmans' },
