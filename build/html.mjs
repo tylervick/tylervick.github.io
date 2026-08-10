@@ -75,7 +75,7 @@ function renderCard(card, i) {
   // all set explicitly and `* { margin:0 }` clears the UA heading margin).
   return `  <div class="card" style="--i:${i}" role="listitem">
     <div class="card__inner ${brand.slug}">
-      <div class="hd"><span>${pad(i)} — ${esc(brand.label)}</span><span>${esc(
+      <div class="hd"><span>${pad(i)} · ${esc(brand.label)}</span><span>${esc(
         formatRange(card.startDate, card.endDate),
       )}</span></div>
       <div class="bd">
@@ -130,11 +130,11 @@ export function renderPage(resume) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(name)} — Software Engineer</title>
+<title>${esc(name)} · Software Engineer</title>
 <meta name="description" content="${esc(summary)}">
 <link rel="manifest" href="site.webmanifest">
 <link rel="apple-touch-icon" href="img/icon.png">
-<meta property="og:title" content="${esc(name)} — Software Engineer">
+<meta property="og:title" content="${esc(name)} · Software Engineer">
 <meta property="og:description" content="${esc(summary)}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tylervick.com">

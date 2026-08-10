@@ -2,13 +2,22 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { formatRange, groupByEmployer } from '../build/resume.mjs';
 
+// Separator is an EN dash (U+2013). Em dashes (U+2014) are banned from rendered
+// output; test/html.test.mjs enforces that across the whole generated page.
 test('formatRange: ongoing role shows an open range', () => {
-  assert.equal(formatRange('2026-06', undefined), '2026—');
+  assert.equal(formatRange('2026-06', undefined), '2026–');
 });
 
 test('formatRange: multi-year role abbreviates the end year', () => {
-  assert.equal(formatRange('2024-05', '2026-06'), '2024—26');
-  assert.equal(formatRange('2011-11', '2015-08'), '2011—15');
+  assert.equal(formatRange('2024-05', '2026-06'), '2024–26');
+  assert.equal(formatRange('2011-11', '2015-08'), '2011–15');
+});
+
+test('formatRange never emits an em dash', () => {
+  for (const r of [formatRange('2026-06'), formatRange('2024-05', '2026-06'),
+                   formatRange('2024-02', '2024-05')]) {
+    assert.ok(!r.includes('—'), `em dash in ${JSON.stringify(r)}`);
+  }
 });
 
 test('formatRange: same-year role shows one year', () => {

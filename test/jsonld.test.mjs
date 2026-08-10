@@ -40,8 +40,8 @@ test('alumniOf covers past employers and the school', () => {
   assert.ok(!names.includes('Function Health'), 'current employer belongs in worksFor');
 });
 
-test('address is Berkeley', () => {
-  assert.equal(node('Person').address.addressLocality, 'Berkeley');
+test('address is the Bay Area', () => {
+  assert.equal(node('Person').address.addressLocality, 'Bay Area');
 });
 
 test('highlights are never emitted as structured data', () => {

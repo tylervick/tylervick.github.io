@@ -137,7 +137,9 @@
   ul { list-style:none; margin:.9rem 0 0; padding:0; }
   li { font-family:var(--serif); font-size:.87rem; line-height:1.58; opacity:.9;
        padding-left:1rem; position:relative; margin-top:.42rem; }
-  li::before { content:"—"; position:absolute; left:0; opacity:.45; }
+  /* Bullet marker. NOT a dash: an em dash here read as punctuation rather than
+     a bullet. Keep this a middot (or nothing) if the marker is ever restyled. */
+  li::before { content:"·"; position:absolute; left:0; opacity:.45; }
 
   /* Brand colours, carried over from the current site's spine palette in
      style.css. Light brands (Snap, Wegmans, RIT) flip to dark text rather

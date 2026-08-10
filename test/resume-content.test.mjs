@@ -23,8 +23,8 @@ test('exactly one role is current', () => {
   assert.equal(current[0].name, 'Function Health');
 });
 
-test('location is Berkeley', () => {
-  assert.equal(resume.basics.location.city, 'Berkeley');
+test('location is the Bay Area', () => {
+  assert.equal(resume.basics.location.city, 'Bay Area');
   assert.equal(resume.basics.location.region, 'CA');
 });
 

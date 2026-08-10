@@ -20,7 +20,7 @@
     "website": "tylervick.com",
     "location": {
       "countryCode": "US",
-      "city": "Berkeley",
+      "city": "Bay Area",
       "region": "CA",
       "timezone": "America/Los_Angeles"
     }
@@ -44,7 +44,7 @@
       "startDate": "2026-06",
       "summary": "Developer experience, infrastructure, and platform engineering.",
       "highlights": [],
-      "location": "Berkeley, CA"
+      "location": "Bay Area, CA"
     },
     {
       "name": "The Walt Disney Studios",

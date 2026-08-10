@@ -1,12 +1,18 @@
-/** Year-only display range. '2024-05' + '2026-06' -> '2024—26'. */
+/**
+ * Year-only display range. '2024-05' + '2026-06' -> '2024–26'.
+ *
+ * The separator is an EN dash (U+2013), the correct character for a numeric
+ * range. Do not "fix" it to an em dash (U+2014): em dashes are banned from
+ * this site's rendered output, and an em dash is also wrong here typographically.
+ */
 export function formatRange(start, end) {
   const year = s => (s ? s.slice(0, 4) : null);
   const s = year(start);
   const e = year(end);
   if (!s) return '';
-  if (!e) return `${s}—`;
+  if (!e) return `${s}–`;
   if (s === e) return s;
-  return `${s}—${e.slice(2)}`;
+  return `${s}–${e.slice(2)}`;
 }
 
 /**

@@ -126,9 +126,21 @@ test('the footer city, timezone and year are derived from resume.json', () => {
   assert.match(page, /class="fine">Lisbon /, 'footer city is not derived from basics.location');
   assert.ok(page.includes('"Europe/Lisbon"'), 'clock timezone is not derived from basics.location');
   assert.ok(!page.includes('America/Los_Angeles'), 'a hard-coded timezone survived');
-  assert.ok(!page.includes('Berkeley'), 'a hard-coded city survived');
+  assert.ok(!page.includes('Bay Area'), 'a hard-coded city survived');
   // Derived from the build date — a literal year goes stale silently.
   assert.ok(page.includes(`· ${new Date().getFullYear()}<`), 'footer year is not the build year');
+});
+
+// Em dashes are banned from anything a visitor sees. They were removed from the
+// card headers, the <title>/og:title, the date ranges and the bullet marker
+// (which read as punctuation rather than a bullet). This guard covers the whole
+// rendered page rather than those four sites individually, so a new one cannot
+// be introduced somewhere nobody thought to check. En dashes in date ranges are
+// deliberate and allowed: U+2013 is the correct character for a numeric range.
+test('the rendered page contains no em dash', () => {
+  const page = renderPage(resume);
+  const hits = [...page.matchAll(/.{0,30}—.{0,20}/g)].map(m => m[0]);
+  assert.equal(hits.length, 0, `em dash in rendered output:\n  ${hits.join('\n  ')}`);
 });
 
 test('escapes the mailto address like every other interpolation', () => {
