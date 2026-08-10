@@ -108,9 +108,12 @@ test('the work history has landmark, heading and list semantics', () => {
   assert.equal(orgs.length, 7, 'every employer/school name must be a real heading');
   assert.doesNotMatch(html, /<div class="org">/, 'employer names must not be plain divs');
 
-  // Deck list semantics are ARIA, not <ul>/<li> — style.css has unscoped
-  // ul/li rules for the bullets, and a real <li> here would inherit
-  // `position: relative` from them and destroy the sticky mechanic.
+  // Deck list semantics are ARIA, not <ul>/<li>: style.css has unscoped ul/li
+  // rules for the highlight bullets, so a real <li> here would inherit them and
+  // paint a bullet marker on all seven cards, plus padding, margin and the serif
+  // font. Sticky positioning is NOT the reason (an earlier comment said it was
+  // and was wrong: `.card` outranks bare `li` on specificity, and retagging was
+  // measured to leave the geometry identical). See build/html.mjs.
   assert.match(html, /class="wrap deck"[^>]*role="list"/, 'deck is not exposed as a list');
   assert.equal((html.match(/role="listitem"/g) ?? []).length, 7);
 });
@@ -127,8 +130,25 @@ test('the footer city, timezone and year are derived from resume.json', () => {
   assert.ok(page.includes('"Europe/Lisbon"'), 'clock timezone is not derived from basics.location');
   assert.ok(!page.includes('America/Los_Angeles'), 'a hard-coded timezone survived');
   assert.ok(!page.includes('Bay Area'), 'a hard-coded city survived');
-  // Derived from the build date — a literal year goes stale silently.
-  assert.ok(page.includes(`· ${new Date().getFullYear()}<`), 'footer year is not the build year');
+});
+
+// The generated page must be a pure function of resume.json, never of the clock.
+// A previous version put `new Date().getFullYear()` in the footer, which meant
+// that every 1 January the committed index.html went stale with no code change
+// and the freshness test in test/build.test.mjs failed for no reason anyone
+// touching the repo would recognise. Rendering twice with a year between must
+// produce identical bytes.
+test('the rendered page does not depend on the current date', () => {
+  const real = Date;
+  const renderAtYear = y => {
+    globalThis.Date = class extends real {
+      constructor(...a) { super(...(a.length ? a : [`${y}-06-15T12:00:00Z`])); }
+      static now() { return new real(`${y}-06-15T12:00:00Z`).getTime(); }
+    };
+    try { return renderPage(resume); } finally { globalThis.Date = real; }
+  };
+  assert.equal(renderAtYear(2026), renderAtYear(2031),
+    'output changed with the wall clock: something in the generator reads the date');
 });
 
 // Em dashes are banned from anything a visitor sees. They were removed from the

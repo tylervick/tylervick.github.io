@@ -66,10 +66,21 @@ function renderCard(card, i) {
         .join('\n')}\n        </ul>`
     : '';
   // role="listitem" (not a real <li>) and <h3 class="org"> (not <div>) are how
-  // the deck gets list + heading semantics WITHOUT touching its CSS: style.css
-  // has unscoped `ul`/`li` rules for the highlight bullets, and a real <li>
-  // here would inherit `position: relative` from them and kill the sticky
-  // mechanic outright. The ARIA role conveys the same thing to a screen reader
+  // the deck gets list + heading semantics WITHOUT touching its CSS.
+  //
+  // Why ARIA roles and not real <ul>/<li>: style.css carries UNSCOPED `ul`/`li`
+  // rules for the highlight bullets, so a real <li> here would inherit all of
+  // them. Concretely it would paint `li::before` (a bullet marker) on all seven
+  // cards, plus padding-left, margin-top, opacity and the serif font.
+  //
+  // Note what does NOT break, because an earlier version of this comment claimed
+  // it did and was wrong: `position: sticky` SURVIVES. `.card` (0,1,0) outranks
+  // the bare `li` rule (0,0,1) on specificity, so the deck mechanic is fine.
+  // Retagging to real <li> was measured: geometry identical, bullets ruined.
+  // Scoping those `ul`/`li` rules would be the real fix, but it churns selectors
+  // that invariant 5 in test/invariants.test.mjs actively polices.
+  //
+  // The ARIA role conveys the same thing to a screen reader
   // and is invisible to layout. `.org` keeps its class, so an <h3> renders
   // byte-identically to the <div> it replaces (font-size/weight/line-height are
   // all set explicitly and `* { margin:0 }` clears the UA heading margin).
@@ -117,12 +128,18 @@ export function renderPage(resume) {
   // esc() on the address too: an email containing & would otherwise emit
   // invalid HTML, and one containing a quote would break out of the attribute.
   const mail = `mailto:${esc(email)}`;
-  // City, timezone and year are DERIVED, never typed twice. The JSON-LD reads
+  // City and timezone are DERIVED, never typed twice. The JSON-LD reads
   // basics.location for the same facts, so a hard-coded footer would drift from
-  // the structured data the moment the resume moved city — the two-sources-of-
-  // truth bug this generator exists to remove.
+  // the structured data the moment the resume moved city, which is the
+  // two-sources-of-truth bug this generator exists to remove.
+  //
+  // There is deliberately NO year here. It used to be `new Date().getFullYear()`,
+  // which made the generated page a function of the wall clock rather than of
+  // resume.json: every 1 January the committed index.html silently went stale
+  // and test/build.test.mjs failed with nothing having changed. Do not reintroduce
+  // it from the clock. If a year is ever wanted, source it from resume.json so
+  // the output stays a pure function of the inputs.
   const { city, timezone } = location;
-  const year = new Date().getFullYear();
   const tzJs = jsonSafe(JSON.stringify(timezone));
 
   return `<!doctype html>
@@ -176,7 +193,7 @@ ${cards.map(renderCard).join('\n\n')}
     <a href="${mail}">Email</a>
 ${profiles.map(p => `    <a href="${esc(p.url)}">${esc(p.network)}</a>`).join('\n')}
   </p>
-  <p class="fine">${esc(city)} <span class="clock" id="clock"></span> · ${year}</p>
+  <p class="fine">${esc(city)} <span class="clock" id="clock"></span></p>
 </footer>
 <script>
   const el = document.getElementById("clock");
