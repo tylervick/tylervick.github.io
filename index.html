@@ -1,83 +1,228 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>Tyler Vick &mdash; Software Engineer</title>
-        <meta name="description" content="Tyler Vick &mdash; software engineer. A decade of making software easier to build, test, and ship." />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tyler Vick · Software Engineer</title>
+<meta name="description" content="Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.">
+<link rel="manifest" href="site.webmanifest">
+<link rel="apple-touch-icon" href="img/icon.png">
+<meta property="og:title" content="Tyler Vick · Software Engineer">
+<meta property="og:description" content="Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tylervick.com">
+<meta property="og:image" content="https://tylervick.com/img/tile.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<div class="wrap">
+  <header class="intro">
+    <span class="kick">Tyler Vick</span>
+    <h1>I make software easier to<br>build, test, and&nbsp;ship.</h1>
+    <p class="sub">Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.</p>
+  </header>
+</div>
 
-        <link rel="manifest" href="site.webmanifest" />
-        <link rel="apple-touch-icon" href="img/icon.png" />
+<!-- The work history needs a landmark and a name, but NOTHING here may alter
+     the deck's geometry: .deck is the sticky containing block, so the section
+     wraps it from OUTSIDE rather than adding a child, and the heading that
+     names it is .vh (position:absolute), contributing zero flow height. -->
+<section aria-labelledby="work-title">
+  <h2 id="work-title" class="vh">Work history</h2>
 
-        <meta property="og:title" content="Tyler Vick &mdash; Software Engineer" />
-        <meta property="og:description" content="A decade of making software easier to build, test, and ship." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tylervick.com" />
-        <meta property="og:image" content="https://tylervick.com/img/tile.png" />
-        <meta property="og:image:width" content="558" />
-        <meta property="og:image:height" content="558" />
+  <div class="wrap deck" style="--count:6" role="list">
 
-        <link rel="stylesheet" href="style.css" />
-    </head>
-    <body>
-        <div class="spine" aria-hidden="true"><i class="s1"></i><i class="s2"></i><i class="s3"></i><i class="s4"></i><i class="s5"></i></div>
-        <header>
-            <h1>Tyler Vick <span class="role">/ Software Engineer</span></h1>
-            <p class="intro"><b>I make software easier to build, test, and&nbsp;ship.</b></p>
-        </header>
+  <div class="card" style="--i:0" role="listitem">
+    <div class="card__inner b-fn">
+      <div class="hd"><span>01 · Function Health</span><span>2026–</span></div>
+      <div class="bd">
+        <h3 class="org">Function Health</h3>
+        <div class="roles">
+        <div class="role"><span>Software Engineer</span><span class="d">2026–</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <main>
-            <section>
-                <h2>Work</h2>
-                <ul class="timeline">
-                    <li class="b-twds">
-                        <span class="idx">01</span>
-                        <span class="who">The Walt Disney Studios <span class="detail">&mdash; Studio Technology</span></span>
-                        <span class="dates">2024&ndash;</span>
-                    </li>
-                    <li class="b-snap">
-                        <span class="idx">02</span>
-                        <span class="who">Snap Inc. <span class="detail">&mdash; Test Strategy &amp; Tools</span></span>
-                        <span class="dates">2017&ndash;2024</span>
-                    </li>
-                    <li class="b-epic">
-                        <span class="idx">03</span>
-                        <span class="who">Epic Systems <span class="detail">&mdash; Claims &amp; Remittance</span></span>
-                        <span class="dates">2016&ndash;2017</span>
-                    </li>
-                    <li class="b-weg">
-                        <span class="idx">04</span>
-                        <span class="who">Wegmans <span class="detail">&mdash; QA Engineering</span></span>
-                        <span class="dates">2013&ndash;2016</span>
-                    </li>
-                </ul>
-            </section>
+  <div class="card" style="--i:1" role="listitem">
+    <div class="card__inner b-twds">
+      <div class="hd"><span>02 · Disney</span><span>2024–26</span></div>
+      <div class="bd">
+        <h3 class="org">The Walt Disney Studios</h3>
+        <div class="roles">
+        <div class="role"><span>Staff Software Engineer (Contract)</span><span class="d">2024–26</span></div>
+        </div>
+        <ul>
+          <li>Tech Lead for Studioshare Exchange, a platform for sharing and collaborating on digital assets across Marvel, Lucasfilm, Pixar, and 20th Century Studios.</li>
+          <li>Created industry-leading Gaussian Splat WebXR viewer used by location scouts and artists for previsualization.</li>
+          <li>Collaborated with technical directors to drive adoption of Studioshare services, onboarding all major studios to the platform within the first year of operation.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-            <section>
-                <h2>Education</h2>
-                <ul class="timeline">
-                    <li class="b-rit">
-                        <span class="idx">05</span>
-                        <span class="who">Rochester Institute of Technology <span class="detail">&mdash; B.S., MIS &amp; Marketing</span></span>
-                        <span class="dates">2015</span>
-                    </li>
-                </ul>
-            </section>
-        </main>
+  <div class="card" style="--i:2" role="listitem">
+    <div class="card__inner b-snap">
+      <div class="hd"><span>03 · Snap</span><span>2017–24</span></div>
+      <div class="bd">
+        <h3 class="org">Snap Inc.</h3>
+        <div class="roles">
+        <div class="role"><span>Senior Software Engineer</span><span class="d">2020–24</span></div>
+        <div class="role"><span>Quality Engineer</span><span class="d">2019–20</span></div>
+        <div class="role"><span>QA Engineer - Snap Ads &amp; Ads SDK</span><span class="d">2017–19</span></div>
+        </div>
+        <ul>
+          <li>Owner of mobile Test Platform serving over 3,000 engineers, developing CI/CD pipelines for UI, Performance, and Unit testing for the Snapchat application on iOS and Android.</li>
+          <li>Led Swift adoption through interoperability tooling in Bazel and compiler optimization for over 10 million lines of iOS code.</li>
+          <li>Created white-box iOS UI testing framework, developing features such as upgrade testing, screen recording, and WKWebView/WKScriptMessage automation.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-        <footer>
-            <p class="elsewhere">
-                <a href="mailto:&#116;&#121;&#108;&#101;&#114;&#064;&#116;&#121;&#108;&#101;&#114;&#118;&#105;&#099;&#107;&#046;&#099;&#111;&#109;">Email</a>
-                <a href="https://github.com/tylervick">GitHub</a>
-                <a href="https://www.linkedin.com/in/tylervick/">LinkedIn</a>
-            </p>
-            <p class="fine">San Francisco <span class="clock" id="clock"></span> &middot; 2026</p>
-        </footer>
-        <script>
-            const el = document.getElementById("clock");
-            const tick = () => el.textContent = new Intl.DateTimeFormat("en-US",
-                { hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" }).format(new Date());
-            tick(); setInterval(tick, 30000);
-        </script>
-    </body>
+  <div class="card" style="--i:3" role="listitem">
+    <div class="card__inner b-epic">
+      <div class="hd"><span>04 · Epic</span><span>2016–17</span></div>
+      <div class="bd">
+        <h3 class="org">Epic Systems</h3>
+        <div class="roles">
+        <div class="role"><span>Technical Services Analyst</span><span class="d">2016–17</span></div>
+        </div>
+        <ul>
+          <li>Supported 5 large hospital organizations on Epic Resolute revenue enterprise applications.</li>
+          <li>Created server extensions in MUMPS for over 40 custom insurance providers.</li>
+          <li>Built and maintained internal Web Extension distribution platform.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="--i:4" role="listitem">
+    <div class="card__inner b-weg">
+      <div class="hd"><span>05 · Wegmans</span><span>2013–16</span></div>
+      <div class="bd">
+        <h3 class="org">Wegmans</h3>
+        <div class="roles">
+        <div class="role"><span>Quality Assurance Intern</span><span class="d">2013–16</span></div>
+        </div>
+        <ul>
+          <li>Certified software applications for internal and customer-facing projects.</li>
+          <li>Created automated test suites for mobile applications.</li>
+          <li>Segmented mobile traffic analytics to optimize platform test coverage.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="--i:5" role="listitem">
+    <div class="card__inner b-rit">
+      <div class="hd"><span>06 · RIT</span><span>2011–15</span></div>
+      <div class="bd">
+        <h3 class="org">Rochester Institute of Technology</h3>
+        <div class="roles">
+        <div class="role"><span>Bachelor of Science, Information Systems &amp; Marketing</span><span class="d">2011–15</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Must stay a CHILD of .deck: it extends the deck's CONTENT box, which
+         is what gives the last sticky card its travel. -->
+    <div class="runway" aria-hidden="true"></div>
+
+  </div>
+</section>
+</main>
+
+<footer class="wrap after">
+  <h2>Elsewhere</h2>
+  <p class="elsewhere">
+    <a href="mailto:hello@tylervick.com">Email</a>
+    <a href="https://www.linkedin.com/in/tylervick">LinkedIn</a>
+    <a href="https://github.com/tylervick">GitHub</a>
+  </p>
+  <p class="fine">Bay Area <span class="clock" id="clock"></span></p>
+</footer>
+<script>
+  const el = document.getElementById("clock");
+  const tick = () => el.textContent = new Intl.DateTimeFormat("en-US",
+    { hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" }).format(new Date());
+  tick(); setInterval(tick, 30000);
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://tylervick.com/#website",
+      "url": "https://tylervick.com/",
+      "name": "Tyler Vick"
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": "https://tylervick.com/#webpage",
+      "url": "https://tylervick.com/",
+      "mainEntity": {
+        "@id": "https://tylervick.com/#person"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://tylervick.com/#person",
+      "name": "Tyler Vick",
+      "url": "https://tylervick.com",
+      "description": "Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.",
+      "sameAs": [
+        "https://www.linkedin.com/in/tylervick",
+        "https://github.com/tylervick"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Bay Area",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      },
+      "alumniOf": [
+        {
+          "@type": "Organization",
+          "name": "The Walt Disney Studios",
+          "url": "https://www.disneystudios.com/"
+        },
+        {
+          "@type": "Organization",
+          "name": "Snap Inc.",
+          "url": "https://www.snap.com"
+        },
+        {
+          "@type": "Organization",
+          "name": "Epic Systems Corporation",
+          "url": "https://www.epic.com"
+        },
+        {
+          "@type": "Organization",
+          "name": "Wegmans Food Markets, Inc.",
+          "url": "https://www.wegmans.com"
+        },
+        {
+          "@type": "EducationalOrganization",
+          "name": "Rochester Institute of Technology",
+          "url": "https://www.rit.edu"
+        }
+      ],
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Function Health",
+        "url": "https://www.functionhealth.com/"
+      },
+      "hasOccupation": {
+        "@type": "Occupation",
+        "name": "Software Engineer"
+      }
+    }
+  ]
+}
+</script>
+</body>
 </html>

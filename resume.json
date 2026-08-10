@@ -1,0 +1,208 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/refs/tags/v1.2.1/schema.json",
+  "basics": {
+    "name": "Tyler Vick",
+    "email": "hello@tylervick.com",
+    "url": "https://tylervick.com",
+    "summary": "Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.",
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "username": "tylervick",
+        "url": "https://www.linkedin.com/in/tylervick"
+      },
+      {
+        "network": "GitHub",
+        "username": "tylervick",
+        "url": "https://github.com/tylervick"
+      }
+    ],
+    "website": "tylervick.com",
+    "location": {
+      "countryCode": "US",
+      "city": "Bay Area",
+      "region": "CA",
+      "timezone": "America/Los_Angeles"
+    }
+  },
+  "education": [
+    {
+      "institution": "Rochester Institute of Technology",
+      "url": "https://www.rit.edu",
+      "area": "Information Systems & Marketing",
+      "studyType": "Bachelor of Science",
+      "startDate": "2011-11",
+      "endDate": "2015-08",
+      "location": "Rochester, NY"
+    }
+  ],
+  "work": [
+    {
+      "name": "Function Health",
+      "position": "Software Engineer",
+      "url": "https://www.functionhealth.com/",
+      "startDate": "2026-06",
+      "summary": "Developer experience, infrastructure, and platform engineering.",
+      "highlights": [],
+      "location": "Bay Area, CA"
+    },
+    {
+      "name": "The Walt Disney Studios",
+      "position": "Staff Software Engineer (Contract)",
+      "url": "https://www.disneystudios.com/",
+      "startDate": "2024-05",
+      "endDate": "2026-06",
+      "highlights": [
+        "Tech Lead for Studioshare Exchange, a platform for sharing and collaborating on digital assets across Marvel, Lucasfilm, Pixar, and 20th Century Studios.",
+        "Created industry-leading Gaussian Splat WebXR viewer used by location scouts and artists for previsualization.",
+        "Collaborated with technical directors to drive adoption of Studioshare services, onboarding all major studios to the platform within the first year of operation.",
+        "Developed and documented secure and performant APIs, exceeding the 99.99% availability SLA.",
+        "Integrated generative AI tools such as Stable Diffusion and the Segment Anything Model for creating and editing digital assets."
+      ],
+      "location": "Boise, ID - Remote"
+    },
+    {
+      "name": "Snap Inc.",
+      "position": "Senior Software Engineer",
+      "url": "https://www.snap.com",
+      "startDate": "2020-08",
+      "endDate": "2024-02",
+      "summary": "",
+      "highlights": [
+        "Owner of mobile Test Platform serving over 3,000 engineers, developing CI/CD pipelines for UI, Performance, and Unit testing for the Snapchat application on iOS and Android.",
+        "Led Swift adoption through interoperability tooling in Bazel and compiler optimization for over 10 million lines of iOS code.",
+        "Created white-box iOS UI testing framework, developing features such as upgrade testing, screen recording, and WKWebView/WKScriptMessage automation.",
+        "Designed executive-level operational metrics for system health and developer support.",
+        "Mentored and onboarded new engineers and interns, overseeing a 3x team-size increase."
+      ],
+      "location": "Boise, ID - Remote"
+    },
+    {
+      "name": "Snap Inc.",
+      "position": "Quality Engineer",
+      "url": "https://www.snap.com",
+      "startDate": "2019-05",
+      "endDate": "2020-08",
+      "summary": "",
+      "highlights": [
+        "Migrated Snapchat release pipeline to cloud-based service supporting weekly production releases and internal dogfooding builds.",
+        "Developed service to safeguard trunk and release branches using mobile UI, manual, and backend integration tests.",
+        "Developed service to unify automated and manual testing efforts to accurately measure coverage and reduce redundancy for more than 25,000 test cases.",
+        "Built and maintained release management web applications in React.",
+        "Supported tools and services for a team of 100 QA and Release Engineers."
+      ],
+      "location": "Santa Monica, CA"
+    },
+    {
+      "name": "Snap Inc.",
+      "position": "QA Engineer - Snap Ads & Ads SDK",
+      "url": "https://www.snap.com",
+      "startDate": "2017-06",
+      "endDate": "2019-05",
+      "summary": "",
+      "highlights": [
+        "Verified data quality for advertising attribution metrics throughout $2B revenue growth.",
+        "Developed API debugging and validation web application tools.",
+        "Developed automated framework for webpage and image rendering validation.",
+        "Increased Ad product test code coverage across iOS and Android platforms by 80%, reducing manual test effort by 24 hours per week."
+      ],
+      "location": "Santa Monica, CA"
+    },
+    {
+      "name": "Epic Systems Corporation",
+      "position": "Technical Services Analyst",
+      "url": "https://www.epic.com",
+      "startDate": "2016-02",
+      "endDate": "2017-02",
+      "summary": "",
+      "highlights": [
+        "Supported 5 large hospital organizations on Epic Resolute revenue enterprise applications.",
+        "Created server extensions in MUMPS for over 40 custom insurance providers.",
+        "Built and maintained internal Web Extension distribution platform."
+      ],
+      "location": "Madison, WI"
+    },
+    {
+      "name": "Wegmans Food Markets, Inc.",
+      "position": "Quality Assurance Intern",
+      "url": "https://www.wegmans.com",
+      "startDate": "2013-05",
+      "endDate": "2016-01",
+      "summary": "",
+      "highlights": [
+        "Certified software applications for internal and customer-facing projects.",
+        "Created automated test suites for mobile applications.",
+        "Segmented mobile traffic analytics to optimize platform test coverage."
+      ],
+      "location": "Rochester, NY"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Programming Languages",
+      "keywords": [
+        "Swift",
+        "Golang",
+        "TypeScript",
+        "Kotlin",
+        "Objective-C",
+        "C++",
+        "Java",
+        "Python"
+      ]
+    },
+    {
+      "name": "Web and Frontend Technologies",
+      "keywords": [
+        "React",
+        "Next.js",
+        "Three.js",
+        "WebXR",
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ]
+    },
+    {
+      "name": "Mobile Development",
+      "keywords": ["iOS", "Android", "ARKit", "WKWebView", "SwiftUI"]
+    },
+    {
+      "name": "Build Systems and Developer Tooling",
+      "keywords": [
+        "Bazel",
+        "Gradle",
+        "Xcode",
+        "CI/CD",
+        "Test Automation",
+        "Firebase Test Lab"
+      ]
+    },
+    {
+      "name": "Infrastructure and Cloud Services",
+      "keywords": ["AWS", "Kubernetes", "Terraform", "Docker", "Ansible"]
+    },
+    {
+      "name": "Databases and Data Stores",
+      "keywords": ["PostgreSQL", "ElasticSearch", "Redis"]
+    },
+    {
+      "name": "Machine Learning & Generative AI",
+      "keywords": [
+        "Stable Diffusion",
+        "Segment Anything Model",
+        "Computer Vision",
+        "Nerfstudio",
+        "Semantic Search",
+        "AI-Assisted Content Creation"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "XCTestHTMLReport",
+      "description": "Xcode-like HTML report for Unit and UI Tests",
+      "url": "https://github.com/XCTestHTMLReport/XCTestHTMLReport"
+    }
+  ]
+}

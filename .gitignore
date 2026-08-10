@@ -2,3 +2,10 @@
 .claude
 
 node_modules
+
+.superpowers
+
+# Planning and spec scratch. Kept on disk deliberately, never committed: this
+# repo is published as a website, and these are working notes rather than site
+# content. Removing them from tracking does not remove them from history.
+docs/superpowers/

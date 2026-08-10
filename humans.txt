@@ -7,6 +7,7 @@
 
 # TECHNOLOGY COLOPHON
 
-    Hand-written HTML & CSS, system fonts, no build step.
-    Set in SF Mono. Three lines of JavaScript for the clock.
+    Hand-written HTML & CSS, system fonts.
+    Generated from resume.json by a dependency-free Node script.
+    Three lines of JavaScript for the clock.
     Hosted on Codeberg Pages.
