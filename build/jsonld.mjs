@@ -26,7 +26,14 @@ export function buildJsonLd(resume, groups) {
     name: resume.basics.name,
     url: SITE,
     description: resume.basics.summary,
-    email: `mailto:${resume.basics.email}`,
+    // NO email here, deliberately. Structured data exists to be machine-read,
+    // so an address in this block is the most harvestable copy on the page,
+    // strictly easier to scrape than the visible mailto: link. schema.org/email
+    // is optional and buys nothing: Google does not need it for a Person or
+    // ProfilePage result, so publishing it is pure downside. The visible footer
+    // link stays plaintext on purpose (obfuscation is largely defeated now and
+    // costs real usability for screen readers and copy-paste); the mitigation
+    // is that basics.email is a burnable alias, not a primary address.
     sameAs: resume.basics.profiles.map(p => p.url),
     address: {
       '@type': 'PostalAddress',

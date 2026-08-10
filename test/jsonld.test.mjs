@@ -44,6 +44,20 @@ test('address is the Bay Area', () => {
   assert.equal(node('Person').address.addressLocality, 'Bay Area');
 });
 
+// Structured data is built to be machine-read, so an address here is the most
+// harvestable copy on the page. schema.org/email is optional and Google does not
+// need it for a Person/ProfilePage result, so emitting it is pure downside. The
+// visible mailto: link stays plaintext by choice; this guard only keeps the
+// address out of the block designed for bulk extraction.
+test('no email address appears anywhere in the structured data', () => {
+  const json = JSON.stringify(graph);
+  assert.ok(!json.includes(resume.basics.email),
+    'basics.email leaked into the JSON-LD graph');
+  assert.ok(!/[\w.+-]+@[\w-]+\.[\w.]+/.test(json),
+    'something email-shaped is in the JSON-LD graph');
+  assert.equal(node('Person').email, undefined, 'Person.email should not be set');
+});
+
 test('highlights are never emitted as structured data', () => {
   // They are CSS-hidden on short viewports, so marking them up would describe
   // content some visitors cannot see.

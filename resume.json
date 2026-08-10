@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/refs/tags/v1.2.1/schema.json",
   "basics": {
     "name": "Tyler Vick",
-    "email": "tyler@tylervick.com",
+    "email": "hello@tylervick.com",
     "url": "https://tylervick.com",
     "summary": "Staff software engineer specializing in developer tooling and platform engineering. Full-stack across Swift, TypeScript and Go, building the test platforms, build systems and infrastructure other engineers ship on.",
     "profiles": [
