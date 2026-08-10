@@ -1,5 +1,15 @@
 # www.robotstxt.org/
 
-# Allow crawling of all content
+# The site itself is fully crawlable. The exclusions below are build inputs and
+# source, not site content.
+#
+# This is NOT access control. The repository is public, so these files are
+# readable regardless, and a robots rule is advisory: it stops well-behaved
+# crawlers and search indexing, nothing else. It also names the paths it
+# excludes, which is a signpost as much as a fence. It is here to keep build
+# plumbing out of search results, not to hide anything, so nothing sensitive
+# should ever be placed in these files on the strength of this rule.
 User-agent: *
-Disallow:
+Disallow: /resume.json
+Disallow: /build/
+Disallow: /test/
