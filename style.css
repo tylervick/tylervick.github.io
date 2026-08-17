@@ -387,6 +387,16 @@
       z-index: 0;
       pointer-events: none;
     }
-    .tint-top { top: -9px; }
+    /* The top strip is CONSTANT paper. The top edge is paper at
+       essentially every scroll position (--lead holds the deck below it),
+       so there is nothing to track, and a constant cannot lag or flicker.
+       Safari re-samples on its own schedule, and the body background shown
+       during the overscroll rubber band competes as a colour source, which
+       is what made a dynamic top bar misbehave on the way back up. */
+    .tint-top { top: -9px; background-color: var(--paper); }
+
+    /* The bottom strip IS dynamic: a card fills that edge nearly the whole
+       way down and changes colour as you scroll. Painted by the inline
+       script with whatever is actually rendered there. */
     .tint-bottom { bottom: -9px; }
   }

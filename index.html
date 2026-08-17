@@ -158,10 +158,14 @@
      wrong at the bottom, where a card fills the edge and changes colour as you
      scroll.
 
-     These two strips give Safari something honest to sample. The script below
-     paints each one with whatever colour is ACTUALLY rendered at that edge, so
-     they are invisible by construction. They are iOS-only (see style.css) and
-     sit under the translucent chrome thanks to viewport-fit=cover. -->
+     These two strips give Safari something honest to sample, and both are
+     invisible by construction because each carries the colour already rendered
+     at its edge. The TOP one is a constant paper colour set in style.css: that
+     edge is paper at essentially every scroll position, so a constant cannot
+     lag or land on the wrong colour. The BOTTOM one is painted by the script
+     below, because a card genuinely fills that edge and changes as you scroll.
+     Both are iOS-only (see style.css) and sit under the translucent chrome
+     thanks to viewport-fit=cover. -->
 <div class="tint tint-top" aria-hidden="true"></div>
 <div class="tint tint-bottom" aria-hidden="true"></div>
 
@@ -175,10 +179,20 @@
   // sees and adds no information to the page. Disabling JS costs you nothing
   // but the bar tint, which is why it lives in this one script tag rather than
   // breaking the "no content JavaScript" rule.
+  // Only the BOTTOM strip is dynamic. The top one is a fixed paper colour set
+  // in style.css and is never touched from here.
+  //
+  // Why: the top edge is paper at essentially every scroll position, because
+  // --lead holds the deck below it. Measured at 0/25/50/75% scroll it was paper
+  // every time, with a card reaching it only once the deck releases at the very
+  // end. So there is almost nothing there to track, and making it dynamic only
+  // bought flicker: Safari re-samples on its own schedule, and the body
+  // background it shows during the overscroll rubber band is a competing colour
+  // source mid-gesture. A constant can never lag or land on the wrong colour.
+  //
   // NOT named `top`: window.top is a non-configurable global property, so a
   // global `const top` throws at script evaluation and takes the clock above
   // down with it. Same trap applies to name, status, length, self, parent.
-  const tintTop = document.querySelector(".tint-top");
   const tintBottom = document.querySelector(".tint-bottom");
   // Walk up from whatever is painted at (x, y) to the first ancestor with a
   // real background. The strips are pointer-events:none so elementFromPoint
@@ -195,7 +209,6 @@
   let queued = false;
   const paint = () => {
     queued = false;
-    tintTop.style.backgroundColor = paintedAt(2);
     tintBottom.style.backgroundColor = paintedAt(innerHeight - 3);
   };
   const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(paint); } };
