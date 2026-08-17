@@ -195,84 +195,11 @@ ${profiles.map(p => `    <a href="${esc(p.url)}">${esc(p.network)}</a>`).join('\
   </p>
   <p class="fine">${esc(city)} <span class="clock" id="clock"></span></p>
 </footer>
-
-<!-- Toolbar tint probes. iOS 26 dropped <meta name="theme-color"> (it still
-     parses, Safari ignores it) and now derives its translucent top/bottom bar
-     colour by sampling the background-color of fixed/sticky elements near the
-     viewport edges, reading only the element's OWN background, never its
-     descendants.
-
-     That is why the bars misbehaved here: .card IS sticky but transparent, and
-     the colour lives on .card__inner, which is not sticky. Safari found a
-     sticky element, read nothing, and fell back to the body. Correct at the top
-     (--lead holds the deck below the edge, so paper really is what is there),
-     wrong at the bottom, where a card fills the edge and changes colour as you
-     scroll.
-
-     These two strips give Safari something honest to sample, and both are
-     invisible by construction because each carries the colour already rendered
-     at its edge. The TOP one is a constant paper colour set in style.css: that
-     edge is paper at essentially every scroll position, so a constant cannot
-     lag or land on the wrong colour. The BOTTOM one is painted by the script
-     below, because a card genuinely fills that edge and changes as you scroll.
-     Both are iOS-only (see style.css) and sit under the translucent chrome
-     thanks to viewport-fit=cover. -->
-<div class="tint tint-top" aria-hidden="true"></div>
-<div class="tint tint-bottom" aria-hidden="true"></div>
-
 <script>
   const el = document.getElementById("clock");
   const tick = () => el.textContent = new Intl.DateTimeFormat("en-US",
     { hour: "numeric", minute: "2-digit", timeZone: ${tzJs} }).format(new Date());
   tick(); setInterval(tick, 30000);
-
-  // Toolbar tint. This is CHROME, not content: it paints nothing the reader
-  // sees and adds no information to the page. Disabling JS costs you nothing
-  // but the bar tint, which is why it lives in this one script tag rather than
-  // breaking the "no content JavaScript" rule.
-  // Only the BOTTOM strip is dynamic. The top one is a fixed paper colour set
-  // in style.css and is never touched from here.
-  //
-  // Why: the top edge is paper at essentially every scroll position, because
-  // --lead holds the deck below it. Measured at 0/25/50/75% scroll it was paper
-  // every time, with a card reaching it only once the deck releases at the very
-  // end. So there is almost nothing there to track, and making it dynamic only
-  // bought flicker: Safari re-samples on its own schedule, and the body
-  // background it shows during the overscroll rubber band is a competing colour
-  // source mid-gesture. A constant can never lag or land on the wrong colour.
-  //
-  // NOT named \`top\`: window.top is a non-configurable global property, so a
-  // global \`const top\` throws at script evaluation and takes the clock above
-  // down with it. Same trap applies to name, status, length, self, parent.
-  const tintBottom = document.querySelector(".tint-bottom");
-  // Walk up from whatever is painted at (x, y) to the first ancestor with a
-  // real background. The strips are pointer-events:none so elementFromPoint
-  // never returns them, which would otherwise be a feedback loop.
-  const paintedAt = y => {
-    let n = document.elementFromPoint(Math.round(innerWidth / 2), y);
-    while (n && n !== document.documentElement) {
-      const bg = getComputedStyle(n).backgroundColor;
-      if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") return bg;
-      n = n.parentElement;
-    }
-    return getComputedStyle(document.body).backgroundColor;
-  };
-  let queued = false;
-  const paint = () => {
-    queued = false;
-    tintBottom.style.backgroundColor = paintedAt(innerHeight - 3);
-  };
-  const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(paint); } };
-  addEventListener("scroll", schedule, { passive: true });
-  addEventListener("resize", schedule);
-  addEventListener("orientationchange", schedule);
-  // requestAnimationFrame does not run in a backgrounded tab, so a tint painted
-  // before the page was hidden can be stale on return. Both of these repaint
-  // without waiting for a scroll: visibilitychange covers tab switches, pageshow
-  // covers a bfcache restore, which is the common case on iOS back-navigation.
-  addEventListener("visibilitychange", () => { if (!document.hidden) paint(); });
-  addEventListener("pageshow", paint);
-  paint();
 </script>
 <script type="application/ld+json">
 ${graphJson}
