@@ -144,11 +144,71 @@
   </p>
   <p class="fine">Bay Area <span class="clock" id="clock"></span></p>
 </footer>
+
+<!-- Toolbar tint probes. iOS 26 dropped <meta name="theme-color"> (it still
+     parses, Safari ignores it) and now derives its translucent top/bottom bar
+     colour by sampling the background-color of fixed/sticky elements near the
+     viewport edges, reading only the element's OWN background, never its
+     descendants.
+
+     That is why the bars misbehaved here: .card IS sticky but transparent, and
+     the colour lives on .card__inner, which is not sticky. Safari found a
+     sticky element, read nothing, and fell back to the body. Correct at the top
+     (--lead holds the deck below the edge, so paper really is what is there),
+     wrong at the bottom, where a card fills the edge and changes colour as you
+     scroll.
+
+     These two strips give Safari something honest to sample. The script below
+     paints each one with whatever colour is ACTUALLY rendered at that edge, so
+     they are invisible by construction. They are iOS-only (see style.css) and
+     sit under the translucent chrome thanks to viewport-fit=cover. -->
+<div class="tint tint-top" aria-hidden="true"></div>
+<div class="tint tint-bottom" aria-hidden="true"></div>
+
 <script>
   const el = document.getElementById("clock");
   const tick = () => el.textContent = new Intl.DateTimeFormat("en-US",
     { hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" }).format(new Date());
   tick(); setInterval(tick, 30000);
+
+  // Toolbar tint. This is CHROME, not content: it paints nothing the reader
+  // sees and adds no information to the page. Disabling JS costs you nothing
+  // but the bar tint, which is why it lives in this one script tag rather than
+  // breaking the "no content JavaScript" rule.
+  // NOT named `top`: window.top is a non-configurable global property, so a
+  // global `const top` throws at script evaluation and takes the clock above
+  // down with it. Same trap applies to name, status, length, self, parent.
+  const tintTop = document.querySelector(".tint-top");
+  const tintBottom = document.querySelector(".tint-bottom");
+  // Walk up from whatever is painted at (x, y) to the first ancestor with a
+  // real background. The strips are pointer-events:none so elementFromPoint
+  // never returns them, which would otherwise be a feedback loop.
+  const paintedAt = y => {
+    let n = document.elementFromPoint(Math.round(innerWidth / 2), y);
+    while (n && n !== document.documentElement) {
+      const bg = getComputedStyle(n).backgroundColor;
+      if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") return bg;
+      n = n.parentElement;
+    }
+    return getComputedStyle(document.body).backgroundColor;
+  };
+  let queued = false;
+  const paint = () => {
+    queued = false;
+    tintTop.style.backgroundColor = paintedAt(2);
+    tintBottom.style.backgroundColor = paintedAt(innerHeight - 3);
+  };
+  const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(paint); } };
+  addEventListener("scroll", schedule, { passive: true });
+  addEventListener("resize", schedule);
+  addEventListener("orientationchange", schedule);
+  // requestAnimationFrame does not run in a backgrounded tab, so a tint painted
+  // before the page was hidden can be stale on return. Both of these repaint
+  // without waiting for a scroll: visibilitychange covers tab switches, pageshow
+  // covers a bfcache restore, which is the common case on iOS back-navigation.
+  addEventListener("visibilitychange", () => { if (!document.hidden) paint(); });
+  addEventListener("pageshow", paint);
+  paint();
 </script>
 <script type="application/ld+json">
 {
