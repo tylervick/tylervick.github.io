@@ -42,8 +42,12 @@
       "position": "Software Engineer",
       "url": "https://www.functionhealth.com/",
       "startDate": "2026-06",
-      "summary": "Developer experience, infrastructure, and platform engineering.",
-      "highlights": [],
+      "summary": "Developer Experience, then Growth: deployment platform, AI-assisted developer tooling, and member sign-up and sign-in.",
+      "highlights": [
+        "Owned the internal deployment platform, adding merge-to-prod auto-deploys, per-PR preview environments, and health-check gates that roll back bad releases automatically.",
+        "Helped build an AI code review bot and an eval harness to measure its usefulness, plus cloud-device testing that lets AI agents check mobile changes on real builds.",
+        "Now on Growth, migrating member authentication to a new identity platform with a zero-downtime cutover and reliable sign-in with Apple and Google."
+      ],
       "location": "Bay Area, CA"
     },
     {
