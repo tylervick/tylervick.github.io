@@ -46,7 +46,7 @@
       "highlights": [
         "Owned the internal deployment platform, adding merge-to-prod auto-deploys, per-PR preview environments, and health-check gates that roll back bad releases automatically.",
         "Helped build an AI code review bot and an eval harness to measure its usefulness, plus cloud-device testing that lets AI agents check mobile changes on real builds.",
-        "Now on Growth, migrating member authentication to a new identity platform with a zero-downtime cutover and reliable sign-in with Apple and Google."
+        "Now on Growth, working on how members sign up and sign in, and making account creation more reliable on web and mobile."
       ],
       "location": "Bay Area, CA"
     },
